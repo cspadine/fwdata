@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+</head>
+<body>
+
+<div class='topnav'>
+  <a href='/'>Home</a>
+  <a  href='/database/data'>List all data</a>
+  <a href='/database/data/upload'>Upload a JSON file</a>
+  <a  href='/database/data/search'>Search database</a>
+  <a class='active' href='data/create'>Create new data</a>
+  <a  href='/database/data/delete'>Delete data</a>
+</div>
+
+<h1> <%= title %> </h1>
+<form action='' method='post' id='newDataForm'>
+  <input type='text' placeholder='Judgment' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='judgment' id='judgment'/><br>
+  <input type='text' placeholder='Context' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='context' id='context'/><br>
+    <input type='text' placeholder='Text' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='text' id='text' oninput='populateGloss()'/>
+  <div id='morph_space'></div>
+      <input type='hidden' name='morph' id='morph' value='test asdf'/><br>
+      <input type='hidden' name='gloss' id='gloss' value='test asdf'/><br>
+      <input type='text' placeholder='Translation' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='trans' id='trans' /><br>
+      <input type='text' placeholder='Notes' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='notes' id='notes' /><br>
+      <input type='text' placeholder='Tags' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='tags' id='tags' /><br>
+      <input type='text' placeholder='Source' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='source' id='source' /><br>
+      <input type='text' placeholder='Reference' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='ref' id='ref' /><br>
+      <input type='text' placeholder='Language' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='lang' id='lang' /><br>
+    <input type='submit' value='Submit'>
+</form>
+
+
+<script>
+
+
+function populateGloss(){
+  let text = document.getElementById('text').value;
+  let textArray = text.split(' ');
+  const morphSpace = document.getElementById('morph_space');
+  let morphSpaceContent = '<table><tr>';
+  let glossSpaceContent = '</tr><tr>'
+  for (let i = 0; i < textArray.length;i++){
+  morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" contenteditable> ${textArray[i]}</span></td>`
+  glossSpaceContent += `<td><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`
+}
+ morphSpaceContent += glossSpaceContent;
+  morphSpaceContent += '</tr></table>';
+  morphSpace.innerHTML = morphSpaceContent;
+}
+
+document.getElementById("newDataForm").addEventListener("submit", function(event){
+  event.preventDefault()
+  const textLength = document.getElementById('text').value.split(' ').length;
+  let glossValue = '';
+  let morphValue = '';
+  for (let i = 0; i < textLength; i++){
+    glossValue += document.getElementById(`gloss_span_${i}`).innerHTML+',';
+    morphValue += document.getElementById(`morph_span_${i}`).innerHTML+',';
+  }
+  document.getElementById('morph').setAttribute('value',morphValue);
+    document.getElementById('gloss').setAttribute('value',glossValue);
+  document.getElementById("newDataForm").submit()
+});
+
+
+</script>
+
+<% if(data_list){ %>
+<h2> Added data </h2>
+
+
+<table>
+  <tr>
+    <td rowspan=6 style="vertical-align:top">
+      <%= data_list['judgment'] %>
+    </td>
+    <% for (let j = 0 ; j < data_list['text'].split(' ').length; j++){%>
+      <td>
+      <%= data_list['text'].split(' ')[j] %>
+      </td>
+    <% }  %>
+  </tr>
+  <tr>
+    <% for (let k = 0 ; k < data_list['gloss'].length ; k++ ) {%>
+      <td>
+        <%= data_list['gloss'][k] %>
+      </td>
+    <% } %>
+  </tr>
+  <tr>
+    <td colspan=100>
+      <%= data_list['trans']  %>
+    </td>
+  </tr>
+</table>
+<%}%>
+
+</body>
+</html>

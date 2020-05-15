@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+</head>
+<body>
+
+<div class='topnav'>
+  <a href='/'>Home</a>
+  <a href='/database/data'>Show all data</a>
+  <a href='/database/data/upload'>Upload a JSON file</a>
+  <a class='active' href='/database/data/search'>Search database</a>
+    <a href='create'>Create new data</a>
+</div>
+
+
+
+  <h1>Search in data</h1>
+
+
+  <form action='' method='post'>
+  <input type='text' name='text' placeholder='Search in text' style='width: 500px;'><br>
+  <input type='text' name='gloss' placeholder='Search in gloss' style='width: 500px;'><br>
+  <input type='text' name='trans' placeholder='Search in trans' style='width: 500px;'><br>
+  <input type='text' name='source' placeholder='Search in source' style='width: 500px;'><br>
+  <input type='text' name='ref' placeholder='Search in ref' style='width: 500px;'><br>
+  <input type='text' name='notes' placeholder='Search in notes' style='width: 500px;'><br>
+  <input type='text' name='context' placeholder='Search in context' style='width: 500px;'><br>
+  <input type='text' name='tags' placeholder='Search in tags' style='width: 500px;'><br>
+  <input type='text' name='judgment' placeholder='Search in judgment' style='width: 500px;'><br>
+  <input type='text' name='language' placeholder='Search in language' style='width: 500px;'><br>
+  <input type='submit' value='Submit'>
+  </form>
+
+
+<%if (data_list.length > 0){%>
+<h2> <%= data_list.length %> results</h2>
+<% } %>
+
+<% for (let i=0; i<data_list.length; i++) {%>
+  <table>
+    <tr>
+      <td rowspan=6 style="vertical-align:top">
+        <%= (i+ 1)+'.' %>
+      </td>
+      <td rowspan=6 style="vertical-align:top">
+        <%= data_list[i]['judgment'] %>
+      </td>
+      <% for (let j = 0 ; j < data_list[i]['text'].split(' ').length; j++){%>
+        <td>
+        <%= data_list[i]['text'].split(' ')[j] %>
+        </td>
+      <% }  %>
+    </tr>
+    <tr>
+      <% for (let k = 0 ; k < data_list[i]['gloss'].length ; k++ ) {%>
+        <td>
+          <%= data_list[i]['gloss'][k] %>
+        </td>
+      <% } %>
+    </tr>
+    <tr>
+      <td colspan=100>
+        <%= data_list[i]['trans']  %>
+      </td>
+    </tr>
+  </table>
+  <p>        <%= data_list[i]['notes']  %></p>
+    <p>        <%= data_list[i]['tags']  %></p>
+      <p>        <%= data_list[i]['source']  %></p>
+        <p>        <%= data_list[i]['ref']  %></p>
+  <br>
+<% } %>
+
+
+
+
+
+
+</body>
+</html>

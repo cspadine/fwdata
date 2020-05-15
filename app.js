@@ -1,4 +1,6 @@
 var createError = require('http-errors');
+const fileUpload = require('express-fileupload');
+const multer = require('multer');
 var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
@@ -12,6 +14,7 @@ const helmet = require('helmet');
 
 var app = express();
 app.use(helmet());
+app.use(fileUpload({createParentPath: true}));
 
 //mongoose connection
 const mongoose = require('mongoose');
@@ -24,7 +27,9 @@ db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -32,7 +37,6 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/database', databaseRouter);

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+</head>
+<body>
+
+<div class='topnav'>
+  <a href='/'>Home</a>
+  <a href='/database/data'>List all data</a>
+  <a  href='/database/data/upload'>Upload a JSON file</a>
+  <a href='/database/data/search'>Search database</a>
+    <a href='create'>Create new Data</a>
+    <a class='active href='delete'>Delete data</a>
+</div>
+
+
+  <p>Data Delete</p>
+  <form action='' method='post' id='datadeleteform'>
+    <input name='dataid' id='dataid' type='hidden'>
+    <input type='submit' value='Delete selected'>
+  </form>
+
+  <div id='dataSpace'></div>
+
+
+
+  <script>
+
+
+      const dataList = <%- JSON.stringify(data_list) %>;
+      const dataSpace = document.getElementById('dataSpace');
+      for(let i = 0;i < dataList.length; i++){
+        const div = document.createElement('div');
+        let divContents = `<table><tr><td><input id='checkBox${i}' type='checkbox' onclick='deleteExample(${i})'></td>`;
+        const textArray = dataList[i]['text'].split(' ');
+        for(let j = 0; j< textArray.length; j++){
+          divContents += "<td>"+textArray[j]+"<td>";
+        }
+        divContents += "</tr></table>";
+        div.innerHTML = divContents;
+        dataSpace.appendChild(div);
+      }
+
+      let toDeleteList = [];
+      function deleteExample(x){
+          let checkBox = document.getElementById(`checkBox${x}`);
+          if (checkBox.checked === true){
+          if (!toDeleteList.includes(dataList[x]['_id'])){
+          toDeleteList.push(dataList[x]['_id']).toString();
+          document.getElementById('dataid').setAttribute('value', toDeleteList);
+        }}}
+
+
+
+
+
+
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

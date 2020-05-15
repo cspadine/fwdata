@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css" />
+</head>
+<body>
+
+<div class='topnav'>
+  <a href='/' class='active'>Home</a>
+  <a href='/database/data'>Show all data</a>
+  <a href='/database/data/upload'>Upload a JSON file</a>
+  <a href='/database/data/search'>Search database</a>
+  <a href='database/data/create'>Create new data</a>
+  <a href='database/data/delete'>Delete data</a>
+</div>
+<h1> Home Page </h1>
+<p> Number of sentences: <%= JSON.stringify(data.data_count)  %> </p>
+
+<p> This is an prototype version of a NoSQL database and web interface for storing, searching, and exporting linguistic fieldwork data.
+The goal of this project is to create an extremely user-friendly system with a low bar to entry that allows lingusitic reaserchers to benefit from the utility and versatility of database management systems.  It is designed to address common issues wth data storage in fieldwork.
+Currently, the available options for storing fieldwork data falls generally into two categories: specialized software for lingustic data, which tends to require a large amount of set-up and has a steep learning curve, and more general solutions like shared spreadsheets,
+ which provide very little support for data entry, searching, and maintenence needs specific to linguistic data.  This application is intended to bridge this gap. </p>
+<p> This project was inspired by my own struggles with data management while writing my dissertation. I spent more time entering data than collecting it, and as I refined my transcription and notation systems, older data became hard to search for and fell into disuse.
+  I hope that this web app can give other reasearchers the benefit of that kind of organization and efficency without having to invest time into learning to code. </p>
+<p> The database itself is built on MongoDB, using Mongoose for schema validation. The application uses Node.js and Express.js.</p>
+<h2> Current functionality</h2>
+<ul>
+  <li> Storing data
+    <p> Data is stored in a mongoDB database, which currently supports the following fields:
+      <ul>
+        <li> text: a sentence in the target language.
+        <li> morphological breakdown: an array of morphemes that make up the text.
+        <li> interlinear gloss: the corresponding translation or label for each morpheme.
+        <li> free translation: the meaning of the sentence in the medium language.
+        <li> context: any background information given to a consultant while eliciting a sentence.
+        <li> notes: comments from the user about the example.
+        <li> tags: a list of short, searchable phrases relevant to the example.
+        <li> source: the document that the example was taken from, or alternatively, an identifier for the language consultant.
+        <li> reference: an identifier for the particular example.
+        <li> language: the iso code for the target langauge.
+      </ul>
+      </p>
+  <li> Searching database
+    <p> The data can be searched using criteria from any of the fields above, including multiple criteria per field.</p>
+  <li> Upload data in JSON format
+    <p> JSON files of data in compatable format can be directly uploaded into the database.
+  <li> Creating data manually
+    <p> Data can be manually entered into the database, in an interface that partially automates the data entry process.
+  <li> Deleting data
+    <p> Data can be deleted perminantly from the database.
+</ul>
+
+<h2>Functionality in development</h2>
+<ul>
+  <li> Exporting data as text, HTML, LaTeX, or JSON
+    <p> Selected data will be downloadable in mutliple formats so that it can be easily added to documents.</p>
+  <li> Tools for data maintenence
+    <p> Users will be able to view all unique lexical items, merge lexical items to regularize spelling and annotation conventions, and standardize glossing according to Leipzig glossing conventions. </p>
+  <li> Auto-populating for data creation
+    <p> When entering data, glosses will be suggested to the user based on the existing lexicon.
+  <li> Support for individual users
+    <p> Currently, this protype system uses a single database, but future versions will allow users to securely store their own data separately, in their own database.
+  <li> Built-in citation linking
+    <p> Citations for data collected from external sources will be accessable and downloadable along with the data itself. </p>
+
+</ul>
+
+<h2>Next steps</h2>
+<ul>
+  <li> Data sharing
+    <p> Users will be able to selectively allow other users to access their data.</p>
+  <li> Scraping data from PDFs
+    <p> Upload pdfs to add the data they contain and their citation to a database.</p>
+  <li> Support for a broader range of language features
+    <p> Expand support for non-standard characters and for including audio and video files.</p>
+</ul>
+
+
+
+
+</body>
+</html>

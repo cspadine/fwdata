@@ -1,8 +1,61 @@
+html {background-color: #ffffff
+}
+
 body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  padding: 30px;
+  font: 14px "Times New Roman", Times, serif;
 }
 
 a {
   color: #00B7FF;
+}
+
+
+/*background color for topnav*/
+.topnav {
+  background-color: #333;
+  overflow: hidden;
+}
+
+/*style links inside navbar*/
+.topnav a {
+  float: left;
+  color: #EAE7DC;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+
+
+/* Change the color of links on hover */
+.topnav a:hover {
+  background-color: #8E8D8A;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #ffff00;
+  color: white;
+}
+
+
+
+
+.input,
+.textarea {
+  border: 1px solid #ccc;
+  font-family: inherit;
+  font-size: inherit;
+  padding: 1px 6px;
+}
+
+.input-wrap {
+  position: relative;
+}
+.input-wrap .input {
+  position: absolute;
+  width: 100%;
+  left: 0;
 }

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+</head>
+<body>
+
+<div class='topnav'>
+  <a href='/'>Home</a>
+  <a class='active' href='/database/data'>Show all data</a>
+  <a href='/database/data/upload'>Upload a JSON file</a>
+  <a  href='/database/data/search'>Search database</a>
+    <a href='data/create'>Create new data</a>
+    <a href='data/delete'>Delete data</a>
+</div>
+
+
+<h1> All data </h1>
+<h2> <%= data_list.length %> results</h2>
+
+<% for (let i=0; i < data_list.length; i++) {%>
+  <table>
+    <tr>
+      <td rowspan=6 style="vertical-align:top">
+        <%= (i+ 1)+'.' %>
+      </td>
+      <td rowspan=6 style="vertical-align:top">
+        <%= data_list[i]['judgment'] %>
+      </td>
+      <% for (let j = 0 ; j < data_list[i]['text'].split(' ').length; j++){%>
+        <td>
+        <%= data_list[i]['text'].split(' ')[j] %>
+        </td>
+      <% }  %>
+    </tr>
+    <tr>
+      <% for (let k = 0 ; k < data_list[i]['gloss'].length ; k++ ) {%>
+        <td>
+          <%= data_list[i]['gloss'][k] %>
+        </td>
+      <% } %>
+    </tr>
+    <tr>
+      <td colspan=100>
+        <%= data_list[i]['trans']  %>
+      </td>
+    </tr>
+  </table>
+  <br>
+<% } %>
+
+
+
+
+
+
+
+
+
+
+
+
+</html>
+</body>
