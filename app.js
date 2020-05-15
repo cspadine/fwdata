@@ -1,4 +1,6 @@
 var createError = require('http-errors');
+const dotenv = require("dotenv");
+dotenv.config();
 const fileUpload = require('express-fileupload');
 const multer = require('multer');
 var express = require('express');
@@ -18,9 +20,7 @@ app.use(fileUpload({createParentPath: true}));
 
 //mongoose connection
 const mongoose = require('mongoose');
-const dev_db_url = 'mongodb+srv://cspadine:Kr1123Cbi@cluster0-kxhsq.mongodb.net/Project0?retryWrites=true&w=majority'
- ;
-const mongoDB = process.env.MONGODB_URI || dev_db_url;
+const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, {useNewUrlParser: true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
