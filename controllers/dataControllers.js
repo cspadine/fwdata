@@ -90,7 +90,7 @@ exports.data_upload_post =
 // else {
                     data.save();
                   }
-                    res.render('data_form', {title: 'It worked'});
+                    res.render('data_upload');
 //                      function (err) {
 //                        if (err) {return next(err); }
 //                        res.render('data_form', {title: 'IT WORKED', data: data});
