@@ -1,7 +1,6 @@
 var createError = require('http-errors');
 const dotenv = require("dotenv");
 dotenv.config();
-const fileUpload = require('express-fileupload');
 const multer = require('multer');
 var express = require('express');
 var path = require('path');
@@ -16,12 +15,12 @@ const helmet = require('helmet');
 
 var app = express();
 app.use(helmet());
-app.use(fileUpload({createParentPath: true}));
+
 
 //mongoose connection
 const mongoose = require('mongoose');
 const mongoDB = process.env.MONGODB_URI;
-mongoose.connect(mongoDB, {useNewUrlParser: true });
+mongoose.connect(mongoDB, {useNewUrlParser:true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
 
