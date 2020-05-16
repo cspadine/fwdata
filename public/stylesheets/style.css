@@ -11,6 +11,15 @@ a {
 }
 
 
+.metadataDiv {
+  display: none;
+}
+
+
+
+
+
+
 /*background color for topnav*/
 .topnav {
   background-color: #333;

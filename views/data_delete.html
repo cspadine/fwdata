@@ -3,6 +3,11 @@
 <html>
 <head>
     <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+    <style>
+    .metadataDiv{
+      display: 'none',
+    }
+    </style>
 </head>
 <body>
 
@@ -12,15 +17,17 @@
   <a  href='/database/data/upload'>Upload a JSON file</a>
   <a href='/database/data/search'>Search database</a>
     <a href='create'>Create new Data</a>
-    <a class='active href='delete'>Delete data</a>
+    <a class='active' href='delete'>Delete data</a>
 </div>
 
 
-  <p>Data Delete</p>
   <form action='' method='post' id='datadeleteform'>
     <input name='dataid' id='dataid' type='hidden'>
     <input type='submit' value='Delete selected'>
   </form>
+
+<button onclick='checkAll()'>Select all</button>
+
 
   <div id='dataSpace'></div>
 
@@ -28,41 +35,111 @@
 
   <script>
 
+const dataList = <%- JSON.stringify(data_list) %>;
+const dataSpace = document.getElementById('dataSpace');
 
-      const dataList = <%- JSON.stringify(data_list) %>;
-      const dataSpace = document.getElementById('dataSpace');
+  for(let i = 0;i < dataList.length; i++){
+    const div = document.createElement('div');
+    let divContents = `<table><tr>
+    <td rowspan=10 valign='top'> <input id='checkBox${i}' type='checkbox' name='dataCheckbox' onclick='deleteExample(${i})'></td>
+    <td valign='top' rowspan=10>${i+1}.</td>`;
+
+    if(dataList[i]['context']){
+      divContents += '<td colspan=100><i>'+dataList[i]['context']+'</i></td></tr><tr>'
+    }
+
+    divContents += `<td rowspan=10 valign='top'>${dataList[i]['judgment']}</td>`
+    const textArray = dataList[i]['text'].split(' ');
+    for(let j = 0; j < textArray.length; j++){
+      divContents += "<td >"+textArray[j]+"</td>";
+    }
+    divContents += "</tr><tr>"
+    for(let k = 0; k < dataList[i]['gloss'].length; k++){
+      divContents += "<td>"+dataList[i]['gloss'][k]+"</td>";
+    }
+
+    divContents += "</tr><tr><td colspan=100>"+ dataList[i]['trans'] +'</td>';
+    divContents += "</tr></table>";
+    divContents += `<div id='metadataDiv${i}' class='metadataDiv'>
+      <p>${dataList[i]['notes']}</p>
+      <p>${dataList[i]['tags']}</p>
+      <p>${dataList[i]['sources']}</p>
+      <p>${dataList[i]['ref']}</p>
+      <p>${dataList[i]['lang']}</p>
+      </div>
+      <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})'>Show metadata </button>
+      <br><br>`
+    div.innerHTML = divContents;
+    dataSpace.appendChild(div);
+    }
 
 
-      for(let i = 0;i < dataList.length; i++){
-        const div = document.createElement('div');
-        let divContents = `<table><tr><td><input id='checkBox${i}' type='checkbox' onclick='deleteExample(${i})'></td>`;
-        const textArray = dataList[i]['text'].split(' ');
-        for(let j = 0; j< textArray.length; j++){
-          divContents += "<td>"+textArray[j]+"<td>";
-        }
-        divContents += "</tr></table>";
-        div.innerHTML = divContents;
-        dataSpace.appendChild(div);
-      }
+function showMetadata(i){
+  const x = document.getElementById('metadataDiv'+i);
+  if (x.style.display === "none") {
+    x.style.display = "block";
+    document.getElementById('showMetadataDivButton'+i).innerHTML = 'Hide metadata'
+  } else {
+    x.style.display = "none";
+    document.getElementById('showMetadataDivButton'+i).innerHTML = 'Show metadata'
+  }
+}
 
 
 
 
 
-    document.getElementById("datadeleteform").addEventListener("submit", function(event){
-      
-    });
-
+      let toDeleteList = [];
       function deleteExample(x){
           let checkBox = document.getElementById(`checkBox${x}`);
           if (checkBox.checked === true){
-          if (!toDeleteList.includes(dataList[x]['_id'])){
-          toDeleteList.push(dataList[x]['_id']).toString();
+            if (!toDeleteList.includes(dataList[x]['_id'])){
+              toDeleteList.push(dataList[x]['_id']).toString();
+              document.getElementById('dataid').setAttribute('value', toDeleteList);
+              document.getElementById('list').innerHTML= toDeleteList;
+              document.getElementById('list2').innerHTML= document.getElementById('dataid').value
+            }
+          }
+        if (checkBox.checked === false){
+          if (toDeleteList.includes(dataList[x]['_id'])){
+          const idIndex = toDeleteList.indexOf(dataList[x]['_id']);
+          toDeleteList.splice(idIndex, 1);
           document.getElementById('dataid').setAttribute('value', toDeleteList);
-        }}}
+          document.getElementById('list').innerHTML= toDeleteList;
+          document.getElementById('list2').innerHTML= document.getElementById('dataid').value
+        }}
+        }
 
+let checkVal = false;
 
-
+function checkAll(){
+  if (checkVal === false){
+  for (let i= 0; i < dataList.length; i++){
+  const checkbox = document.getElementById('checkBox'+i);
+    checkbox.checked = true;
+    if (!toDeleteList.includes(dataList[i]['_id'])){
+      toDeleteList.push(dataList[i]['_id']).toString();
+      document.getElementById('dataid').setAttribute('value', toDeleteList);
+      document.getElementById('list').innerHTML= toDeleteList;
+      document.getElementById('list2').innerHTML= document.getElementById('dataid').value
+    };
+  };
+  checkVal = true;
+} else {
+  for (let i= 0; i < dataList.length; i++){
+  let checkbox = document.getElementById('checkBox'+i);
+    checkbox.checked = false;
+    if (toDeleteList.includes(dataList[i]['_id'])){
+      let idIndex = toDeleteList.indexOf(dataList[i]['_id']);
+      toDeleteList.splice(idIndex, 1);
+      document.getElementById('dataid').setAttribute('value', toDeleteList);
+      document.getElementById('list').innerHTML= toDeleteList;
+      document.getElementById('list2').innerHTML= document.getElementById('dataid').value
+    };
+  };
+  checkVal = false;
+}
+}
 
 
 
