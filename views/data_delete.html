@@ -31,6 +31,8 @@
 
       const dataList = <%- JSON.stringify(data_list) %>;
       const dataSpace = document.getElementById('dataSpace');
+
+
       for(let i = 0;i < dataList.length; i++){
         const div = document.createElement('div');
         let divContents = `<table><tr><td><input id='checkBox${i}' type='checkbox' onclick='deleteExample(${i})'></td>`;
@@ -43,7 +45,14 @@
         dataSpace.appendChild(div);
       }
 
-      let toDeleteList = [];
+
+
+
+
+    document.getElementById("datadeleteform").addEventListener("submit", function(event){
+      
+    });
+
       function deleteExample(x){
           let checkBox = document.getElementById(`checkBox${x}`);
           if (checkBox.checked === true){

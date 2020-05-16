@@ -1,5 +1,5 @@
 {
-  "name": "express-fwdata",
+  "name": "fwdata",
   "version": "0.0.0",
   "engines": {
     "node": "12.16.3"
