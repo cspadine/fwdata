@@ -25,7 +25,7 @@
     "jade": "~1.11.0",
     "mongoose": "^5.9.12",
     "morgan": "~1.9.1",
-    "muliter":"~6.14.4",
+    "multer":"~6.14.4",
     "express-fileUpload":"~6.14.4"
   },
   "devDependencies": {
