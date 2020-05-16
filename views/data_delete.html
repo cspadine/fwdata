@@ -96,8 +96,6 @@ function showMetadata(i){
             if (!toDeleteList.includes(dataList[x]['_id'])){
               toDeleteList.push(dataList[x]['_id']).toString();
               document.getElementById('dataid').setAttribute('value', toDeleteList);
-              document.getElementById('list').innerHTML= toDeleteList;
-              document.getElementById('list2').innerHTML= document.getElementById('dataid').value
             }
           }
         if (checkBox.checked === false){
@@ -105,8 +103,7 @@ function showMetadata(i){
           const idIndex = toDeleteList.indexOf(dataList[x]['_id']);
           toDeleteList.splice(idIndex, 1);
           document.getElementById('dataid').setAttribute('value', toDeleteList);
-          document.getElementById('list').innerHTML= toDeleteList;
-          document.getElementById('list2').innerHTML= document.getElementById('dataid').value
+
         }}
         }
 
@@ -120,8 +117,6 @@ function checkAll(){
     if (!toDeleteList.includes(dataList[i]['_id'])){
       toDeleteList.push(dataList[i]['_id']).toString();
       document.getElementById('dataid').setAttribute('value', toDeleteList);
-      document.getElementById('list').innerHTML= toDeleteList;
-      document.getElementById('list2').innerHTML= document.getElementById('dataid').value
     };
   };
   checkVal = true;
@@ -133,8 +128,6 @@ function checkAll(){
       let idIndex = toDeleteList.indexOf(dataList[i]['_id']);
       toDeleteList.splice(idIndex, 1);
       document.getElementById('dataid').setAttribute('value', toDeleteList);
-      document.getElementById('list').innerHTML= toDeleteList;
-      document.getElementById('list2').innerHTML= document.getElementById('dataid').value
     };
   };
   checkVal = false;
