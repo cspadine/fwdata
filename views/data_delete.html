@@ -10,13 +10,12 @@
 
 <div class='topnav'>
   <a href='/'>Home</a>
-  <a href='/database/data'>List all data</a>
+  <a href='/database/data'>Show all data</a>
   <a  href='/database/data/upload'>Upload a JSON file</a>
   <a href='/database/data/search'>Search database</a>
     <a href='create'>Create new Data</a>
     <a class='active' href='delete'>Delete data</a>
 </div>
-<div id='test'>test</div>
 
   <form action='' method='post' id='datadeleteform'>
     <input name='dataid' id='dataid' type='hidden'>
@@ -27,25 +26,27 @@
 
 
   <div id='dataSpace'></div>
-
+<ol id='dataOrderedList'>
+</ol>
 
 
   <script>
 
 const dataList = <%- JSON.stringify(data_list) %>;
-const dataSpace = document.getElementById('dataSpace');
+const dataSpace = document.getElementById('dataOrderedList');
 
   for(let i = 0;i < dataList.length; i++){
-    const div = document.createElement('div');
-    let divContents = `<table><tr>
-    <td rowspan=10 valign='top'> <input id='checkBox${i}' type='checkbox' name='dataCheckbox' onclick='deleteExample(${i})'></td>
-    <td valign='top' rowspan=10>${i+1}.</td>`;
+    const li = document.createElement('li');
+    li.setAttribute('id', 'exampleItem'+i);
+    let divContents = '';
 
     if(dataList[i]['context']){
-      divContents += '<td colspan=100><i>'+dataList[i]['context']+'</i></td></tr><tr>'
+      divContents += '<p><i>'+dataList[i]['context']+'</i><p>'
     }
-
-    divContents += `<td rowspan='10' valign='top'>${dataList[i]['judgment']}</td>`
+    divContents += `<table class='exampleTable' id='exampleTable${i}' onclick='selectFunction(${i})' ><tr>`
+    if (!dataList[i]['judgment'] === ''){
+    divContents += `<td rowspan='2' valign='top'>${dataList[i]['judgment']}</td>`
+    }
     const textArray = dataList[i]['text'].split(' ');
     for(let j = 0; j < textArray.length; j++){
       divContents += "<td >"+textArray[j]+"</td>";
@@ -54,27 +55,26 @@ const dataSpace = document.getElementById('dataSpace');
     for(let k = 0; k < dataList[i]['gloss'].length; k++){
       divContents += "<td>"+dataList[i]['gloss'][k]+"</td>";
     }
-
-    divContents += "</tr><tr><td colspan=100>"+ dataList[i]['trans'] +'</td></tr>';
+    divContents += `</tr></table>`
+    divContents += "<p>"+ dataList[i]['trans'] +'</p>';
 //    divContents += "</tr></table>";
     //divContents += `<div id='metadataDiv${i}' class='metadataDiv'>
     divContents += `
-          <tr><td colspan='100'>  <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})' class='metadataButton'>Show metadata </button></tr></td>
+          <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})' class='metadataButton'>Show metadata </button>
       `
-      divContents +=       `<tr><td colspan="100"><div  style="display: none" class='metadataItem' id='metadataSource${i}'>
-            ${dataList[i]['notes'] ? 'Notes: '+dataList[i]['notes'] : '' }<br>
-            ${(!dataList[i]['tags'] === []) ? 'Tags: '+dataList[i]['tags'] : '' }<br>
-            ${dataList[i]['source'] ? 'Source: '+dataList[i]['source'] : '' }<br>
-            ${dataList[i]['ref'] ? 'Reference: '+dataList[i]['ref'] : '' }<br>
-            ${dataList[i]['lang'] ? 'Language: '+dataList[i][''] : '' }<br>
-            </div></td></tr>`
-      divContents += "</table>";
+      divContents +=       `<div  style="display: none" class='metadataItem' id='metadataSource${i}'>
+            ${dataList[i]['notes'] ? 'Notes: '+dataList[i]['notes'] + '<br>' : '' }
+            ${(!dataList[i]['tags'] === []) ? 'Tags: '+dataList[i]['tags']+ '<br>' : '' }
+            ${dataList[i]['source'] ? 'Source: '+dataList[i]['source']+ '<br>' : '' }
+            ${dataList[i]['ref'] ? 'Reference: '+dataList[i]['ref']+ '<br>' : '' }
+            ${dataList[i]['lang'] ? 'Language: '+dataList[i]['']+ '<br>' : '' }
+            </div><br><br>`
 
   //    </div>
   //    <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})'>Show metadata </button>
   //    <br><br>`
-    div.innerHTML = divContents;
-    dataSpace.appendChild(div);
+    li.innerHTML = divContents;
+    dataSpace.appendChild(li);
     }
 
 
@@ -90,45 +90,59 @@ function showMetadata(i){
   }
 }
 
-
-
-
-
       let toDeleteList = [];
-      function deleteExample(x){
-          let checkBox = document.getElementById(`checkBox${x}`);
-          if (checkBox.checked === true){
-            if (!toDeleteList.includes(dataList[x]['_id'])){
-              toDeleteList.push(dataList[x]['_id']).toString();
-              document.getElementById('dataid').setAttribute('value', toDeleteList);
-            }
-          }
-        if (checkBox.checked === false){
-          if (toDeleteList.includes(dataList[x]['_id'])){
-          const idIndex = toDeleteList.indexOf(dataList[x]['_id']);
-          toDeleteList.splice(idIndex, 1);
-          document.getElementById('dataid').setAttribute('value', toDeleteList);
+function selectFunction(i){
+  const exampleItem = document.getElementById('exampleItem'+i);
+  if (exampleItem.style['background-color'] === 'yellow'){
+      exampleItem.setAttribute('style', 'background-color:white')
+               if (toDeleteList.includes(dataList[i]['_id'])){
+                const idIndex = toDeleteList.indexOf(dataList[i]['_id']);
+                toDeleteList.splice(idIndex, 1);
+                document.getElementById('dataid').setAttribute('value', toDeleteList);
+                    document.getElementById('test').innerHTML = toDeleteList;
 
-        }}
-        }
+              }
+      }
+       else {
+  exampleItem.setAttribute('style', 'background-color:yellow');
+  if (!toDeleteList.includes(dataList[i]['_id'])) {
+    toDeleteList.push(dataList[i]['_id']).toString();
+    document.getElementById('dataid').setAttribute('value', toDeleteList);
+    document.getElementById('test').innerHTML = toDeleteList;
+  }
+};
+};
+
+
+
+
+
+
+
+
+
+
+
+
 
 let checkVal = false;
 
 function checkAll(){
   if (checkVal === false){
   for (let i= 0; i < dataList.length; i++){
-  const checkbox = document.getElementById('checkBox'+i);
-    checkbox.checked = true;
-    if (!toDeleteList.includes(dataList[i]['_id'])){
-      toDeleteList.push(dataList[i]['_id']).toString();
-      document.getElementById('dataid').setAttribute('value', toDeleteList);
-    };
+  const checkbox = document.getElementById('exampleItem'+i);
+  checkbox.setAttribute('style', 'background-color:yellow');
+  if (!toDeleteList.includes(dataList[i]['_id'])){
+    toDeleteList.push(dataList[i]['_id']).toString();
+    document.getElementById('dataid').setAttribute('value', toDeleteList);
+  };
   };
   checkVal = true;
+  document.getElementById('test').innerHTML = toDeleteList;
 } else {
   for (let i= 0; i < dataList.length; i++){
-  let checkbox = document.getElementById('checkBox'+i);
-    checkbox.checked = false;
+  let checkbox = document.getElementById('exampleItem'+i);
+  checkbox.setAttribute('style', 'background-color:white');
     if (toDeleteList.includes(dataList[i]['_id'])){
       let idIndex = toDeleteList.indexOf(dataList[i]['_id']);
       toDeleteList.splice(idIndex, 1);
@@ -136,8 +150,10 @@ function checkAll(){
     };
   };
   checkVal = false;
+      document.getElementById('test').innerHTML = toDeleteList;
 }
 }
+
 
 
 
