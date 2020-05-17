@@ -11,12 +11,23 @@ a {
 }
 
 
-.metadataDiv {
-  display: none;
+
+.metadataItem{
+  color : #808080;
 }
-
-
-
+.metadataButton {
+  background-color: white;
+  border: none;
+  color: #808080;
+  padding: 0px 0px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  margin: 0px 0px;
+  cursor: pointer;
+  font: 14px "Times New Roman", Times, serif;
+}
 
 
 
