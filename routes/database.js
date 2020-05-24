@@ -43,5 +43,10 @@ router.get('/data/:id', data_controller.data_detail);
 // GET request for list of all data items.
 router.get('/data', data_controller.data_list);
 
-
+router.get('/lexicon', data_controller.lexicon_list_get);
+router.post('/lexicon/dups', data_controller.lexicon_list_dups);
+router.get('/lexicon/:item', data_controller.lexicon_item);
+router.post('/lexicon/add', data_controller.lexicon_add);
+router.post('/lexicon/format', data_controller.lexicon_format);
+router.post('/lexicon/delete', data_controller.lexicon_delete);
 module.exports = router;

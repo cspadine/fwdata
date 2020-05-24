@@ -45,6 +45,7 @@ function readFile() {
           const context = datalist["sentences"][i]["context"] ? datalist["sentences"][i]["context"] : '';
           const judgment = datalist["sentences"][i]["judgment"] ? datalist["sentences"][i]["judgment"] : '';
           const text = datalist["sentences"][i]["text"] ? datalist["sentences"][i]["text"] : '';
+          const morph = datalist["sentences"][i]["morph"] ? datalist["sentences"][i]["morph"] : datalist["sentences"][i]["text"].split(' ');
           const gloss = datalist["sentences"][i]["gloss"] ? datalist["sentences"][i]["gloss"] : '';
           const trans = datalist["sentences"][i]["trans"] ? datalist["sentences"][i]["trans"].replace(/\"/g,"'") : '';
           const notes = datalist["sentences"][i]["notes"] ? datalist["sentences"][i]["notes"].replace(/\"/g,"'") : '';
@@ -55,6 +56,7 @@ function readFile() {
         formText += `<li><input type='text' placeholder='No context' style='width: 500px;'  name='context${i}' value='${context}'><br>`;
         formText += `<input type='text' name='judgment${i}' style='width: 20px;' value='${judgment}'>`
         formText += `<input type='text' name='text${i}' style='width: 475px;' value='${text}'><br>`;
+        formText += `<input type='text'style='width: 500px;' placeholder='No morph' name='morph${i}' value='${morph}'><br>`;
         formText += `<input type='text'style='width: 500px;' placeholder='No gloss' name='gloss${i}' value='${gloss}'><br>`;
         formText += `<input type='text' style='width: 500px;' placeholder='No translation' name='trans${i}' value="`
         formText += trans;

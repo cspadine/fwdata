@@ -1,12 +1,14 @@
 const validator = require('express-validator');
-
+const ObjectID = require('mongodb').ObjectID;
 
 const Data = require('../models/data');
 const Lang = require('../models/languages')
+const Lex = require('../models/lexicon')
 
 const async = require('async');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
+const mongoose = require('mongoose');
 
 exports.index = function(req, res) {
     async.parallel({
@@ -71,20 +73,24 @@ exports.data_upload_post =
         const judgment = 'judgment'+i
         const context = 'context' + i;
         const gloss = 'gloss' + i;
+        const morph = 'morph' + i;
         const trans = 'trans' + i;
         const notes = 'notes' + i;
         const tags = 'tags' + i;
+        const cleanedMorph = morphCleaner(req.body[morph].split(','));
         let data = new Data({
                 text: req.body[text],
                 source: req.body[source],
                 ref: req.body[ref],
                 judgment: req.body[judgment],
                 context: req.body[context],
+                morph: cleanedMorph,
                 gloss: req.body[gloss].split(','),
                 trans: req.body[trans],
                 notes: req.body[notes],
                 tags: req.body[tags].split(',')
                 });
+        addLexEntry(data['morph'],data['gloss']);
 
 //          {
 // else {
@@ -136,6 +142,7 @@ exports.data_create_post = [
     validator.sanitizeBody('tags').escape(),
     (req, res, next) => {
         const errors = validator.validationResult(req);
+        const cleanedMorph = morphCleaner(req.body.morph.split(','));
         let data = new Data({
                 text: req.body.text,
                 source: req.body.source,
@@ -143,12 +150,12 @@ exports.data_create_post = [
                 judgment: req.body.judgment,
                 context: req.body.context,
                 gloss: req.body.gloss.split(','),
-                morph: req.body.morph.split(','),
+                morph: cleanedMorph,
                 trans: req.body.trans,
                 notes: req.body.notes,
                 tags: req.body.tags.split(' ')
                 });
-
+        addLexEntry(data['morph'],data['gloss']);
     if (!errors.isEmpty()) {
         res.render('data_form', {title: 'Create Data', data_list: data, errors: errors.array()});
         return;
@@ -161,7 +168,6 @@ exports.data_create_post = [
                 if (found_text) {
                     res.redirect('error');
                 } else {
-
                     data.save(function (err) {
                         if (err) {return next(err); }
                         res.render('data_form', {title: 'Create Data', data_list: data, errors: errors.array()});
@@ -173,7 +179,94 @@ exports.data_create_post = [
 ];
 
 
+//strip punctuation and leading/trailing spaces from morph row
+function morphCleaner(array){
+  let arrayCleaned = [];
+  const regex = /\b[^. ]?[\w-+~.]+[^. ]?\b/g;
+    for (let i = 0; i < array.length ; i++){
+      const lowercase = array[i].toLowerCase();
+      const cleanedText = lowercase.replace(/[.?*/()&!,"']+$/g,'').replace(/^[.?*&/()!,"']+/g,'').replace(/\s/g,'');
+      arrayCleaned.push(cleanedText)
+    }
+  return arrayCleaned;
+}
 
+exports.lexicon_add = function (req, res, next) {
+  const morph = ['beep','bloop','bip'];
+  const gloss = ['beep','bloop','bip'];
+  addLexEntry(morph,gloss);
+}
+
+
+function addLexEntry(morph,gloss){
+  if (morph.length == gloss.length){
+  let morphEndArray = [];
+  let glossEndArray = [];
+  for (let i = 0 ; i < morph.length; i++){
+    const morphSubArray = morph[i].split(/[-~+()\/\[\]]/);
+    const glossSubArray = gloss[i].split(/[-~+()\/\[\]]/);
+    if (morphSubArray.length == glossSubArray.length) {
+      for (let j = 0 ; j < morphSubArray.length ; j++){
+        morphEndArray.push(morphSubArray[j])
+        glossEndArray.push(glossSubArray[j])
+      }
+    }
+  }
+    function addToLex (morph, gloss){
+      return new Promise(function (resolve,reject){
+        let lexeme = new Lex({
+          morph : morph,
+          gloss : gloss
+        });
+        Lex.findOne({
+          morph : morph,
+          gloss : gloss
+        })
+          .exec( function(err, found_lexeme) {
+          if (err) {resolve(console.log(err)); }
+          if (found_lexeme) {
+//            resolve(
+              console.log('already exists')
+//            );
+          }
+          else {
+                if(lexeme['morph'] && lexeme['gloss']){
+                lexeme.save();
+//                resolve(
+                  console.log(lexeme)
+//                );
+              }
+               }
+            })
+      })
+    }
+    function loopThroughLex (morph, gloss){
+      return new Promise (function (resolve, reject) {
+      for (let i = 0; i  < morph.length ; i++){
+        addToLex(morph[i], gloss[i]);
+        }
+        resolve()
+      })
+    }
+  loopThroughLex(morphEndArray,glossEndArray).then( () =>
+    {aggregateFunc().then(outcome => Lex.deleteMany({_id: {$in: outcome}}, function (err,q) {
+    if(err) console.log(err);
+  }
+       ))
+     }
+  );
+  console.log('added');
+  }
+  else{
+    console.log("lengths don't match!")
+  }
+}
+
+
+
+exports.lexicon_format = function(req, res, next){
+res.send('not implemented')
+}
 
 
 
@@ -260,3 +353,82 @@ exports.language_list = function(req, res, next) {
         res.render('test', { title: 'Data List', data_list: list_data });
 	});
 };
+
+//Display all lexical items
+exports.lexicon_list_get = function(req, res, next){
+  Lex.find({})
+  .exec(function (err, list_lex) {
+    if (err) { return next(err); }
+      res.render('lexicon_list', {title: 'Lexicon', lex:  list_lex });
+});
+}
+
+exports.lexicon_list_dups = function(req, res, next) {
+  aggregateFunc().then(outcome => res.send(outcome))
+
+}
+
+
+function aggregateFunc ()
+  { return new Promise(function (resolve, reject){
+    Lex.aggregate([
+        { $group: {
+          _id: { firstField: "$morph", secondField: "$gloss" },
+          uniqueIds: { $addToSet: "$_id" },
+          count: { $sum: 1 }
+        }},
+        { $match: {
+          count: { $gt: 1 }
+        }}
+      ], function (err, result) {
+        if (err) {
+          console.log(err);
+          reject();
+        }
+        let idList = [];
+        for (let i = 0 ; i < result.length ; i++){
+            result[i]['uniqueIds'].shift();
+            idList.push(...result[i]['uniqueIds'])
+        }
+        idList.map(String);
+        console.log(idList);
+        resolve(idList)
+      });
+      });
+
+    }
+
+
+
+
+
+
+
+
+exports.lexicon_delete = function(req, res, next) {
+  aggregateFunc().then(outcome => Lex.deleteMany({_id: {$in: outcome}}, function (err,q) {
+   if(err) console.log(err);
+     }))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+exports.lexicon_item = function(req, res, next) {
+  Lex.find({morph: req.params.item},'gloss')
+  .exec(function (err, list_morph){
+    if (err) {return next(err); }
+    res.send({lexRes: list_morph});
+  })
+}

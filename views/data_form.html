@@ -40,16 +40,40 @@ function populateGloss(){
   let text = document.getElementById('text').value;
   let textArray = text.split(' ');
   const morphSpace = document.getElementById('morph_space');
+  const content = autoPopulateGloss(textArray);
+morphSpace.innerHTML = content;
+
+}
+
+function autoPopulateGloss(textArray){
   let morphSpaceContent = '<table><tr>';
   let glossSpaceContent = '</tr><tr>'
+  let glossSuggestionContent = '</tr><tr>'
   for (let i = 0; i < textArray.length;i++){
-  morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" contenteditable> ${textArray[i]}</span></td>`
-  glossSpaceContent += `<td><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`
-}
- morphSpaceContent += glossSpaceContent;
+    morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
+    glossSpaceContent += `<td><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`;
+    makeRequest(textArray[i]).then(res => formatGlossResults(res)).then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
+    glossSuggestionContent += `<td><p id='glossSuggestion${i}'>here</p></td>`
+  }
+  morphSpaceContent += glossSpaceContent;
+  morphSpaceContent += glossSuggestionContent;
   morphSpaceContent += '</tr></table>';
-  morphSpace.innerHTML = morphSpaceContent;
+  return morphSpaceContent
 }
+
+function morphChangeInput(x){
+  let input = document.getElementById(`morph_span_${x}`).innerHTML
+  makeRequest(input).then(res => formatGlossResults(res)).then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
+}
+
+function formatGlossResults (gloss) {
+  let resList = '';
+    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
+    resList += JSON.parse(gloss).lexRes[j].gloss + '<br>';
+  }
+  return resList
+}
+
 
 document.getElementById("newDataForm").addEventListener("submit", function(event){
   event.preventDefault()
@@ -66,7 +90,35 @@ document.getElementById("newDataForm").addEventListener("submit", function(event
 });
 
 
+
+
+const makeRequest = function (url, method){
+  const request = new XMLHttpRequest();
+  return new Promise(function (resolve, reject) {
+    request.onreadystatechange = function () {
+      if (request.readyState !== 4) return;
+      if (request.status >= 200 && request.status < 300){
+        resolve(request.response);
+      } else {
+
+        reject({
+          status: request.status,
+          statusText: request.statusText
+        });
+      }
+    }
+    request.open(method || 'GET', 'http://localhost:3000/database/lexicon/'+url, true);
+    request.send();
+  })
+}
+
+
 </script>
+
+<p>+++++++++++++++++++++++++++</p>
+
+
+
 
 <% if(data_list){ %>
 <h2> Added data </h2>

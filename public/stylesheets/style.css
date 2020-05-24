@@ -1,9 +1,10 @@
-html {background-color: #ffffff
+html {background-color: black
 }
 
 body {
   padding: 30px;
-  font: 14px "Times New Roman", Times, serif;
+  font: 14px Verdana, Geneva, sans-serif;
+  color: white;
 }
 
 a {
@@ -11,7 +12,7 @@ a {
 }
 
 .exampleTable{
-  cursor: pointer;
+  cursor: pointer
 }
 
 .metadataItem{
