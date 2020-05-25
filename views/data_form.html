@@ -35,16 +35,18 @@
 
 <script>
 
-
+//This takes the string entered in the text field, splits it into an array,
+//and calls autoPopulateGloss function to fill the morphSpace div.
 function populateGloss(){
   let text = document.getElementById('text').value;
-  let textArray = text.split(' ');
+  let textArray = text.trim().split(' ');
   const morphSpace = document.getElementById('morph_space');
   const content = autoPopulateGloss(textArray);
 morphSpace.innerHTML = content;
-
 }
 
+//This takes the array from populateGloss, calls makeRequest to retreieve the gloss
+//suggestions, and then returns a value to put in the morphSpace div.
 function autoPopulateGloss(textArray){
   let morphSpaceContent = '<table><tr>';
   let glossSpaceContent = '</tr><tr>'
@@ -52,27 +54,41 @@ function autoPopulateGloss(textArray){
   for (let i = 0; i < textArray.length;i++){
     morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
     glossSpaceContent += `<td><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`;
-    makeRequest(textArray[i]).then(res => formatGlossResults(res)).then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
+    makeRequest(textArray[i]).then(res => formatGlossResults(res,i)).then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
     glossSuggestionContent += `<td><p id='glossSuggestion${i}'>here</p></td>`
   }
   morphSpaceContent += glossSpaceContent;
   morphSpaceContent += glossSuggestionContent;
   morphSpaceContent += '</tr></table>';
   return morphSpaceContent
+
 }
 
 function morphChangeInput(x){
   let input = document.getElementById(`morph_span_${x}`).innerHTML
-  makeRequest(input).then(res => formatGlossResults(res)).then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
+  makeRequest(input).then(res => formatGlossResults(res,x)).then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
 }
 
-function formatGlossResults (gloss) {
+function formatGlossResults (gloss,x) {
   let resList = '';
     for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
-    resList += JSON.parse(gloss).lexRes[j].gloss + '<br>';
+    resList += `<input type='button' id='gloss_suggestion_${x}_${j}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addGloss('${x}','${j}')"><br>`;
+    if (j === 0 ){
+        document.getElementById(`gloss_span_${x}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+    }
   }
   return resList
 }
+
+function addGloss(x,j){
+  const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}`).value;
+  document.getElementById(`gloss_span_${x}`).innerHTML = selectedGlossSuggestion;
+}
+
+
+
+
+
 
 
 document.getElementById("newDataForm").addEventListener("submit", function(event){

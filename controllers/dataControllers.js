@@ -66,6 +66,8 @@ exports.data_upload_get = function(req, res, next) {
 //Handle data upload on POST.
 exports.data_upload_post =
     (req, res, next) => {
+      let finalMorphList = [];
+      let finalGlossList = [];
       for(let i = 0; i< req.body.length; i++){
         const text = 'text'+i;
         const source = 'source'+i;
@@ -90,22 +92,53 @@ exports.data_upload_post =
                 notes: req.body[notes],
                 tags: req.body[tags].split(',')
                 });
-        addLexEntry(data['morph'],data['gloss']);
 
-//          {
-// else {
-                    data.save();
+
+        const wToM = wordsToMorphs(data.morph,data.gloss);
+        if (wToM){
+          const morphList = wToM[0];
+          const glossList = wToM[1];
+          for (let j = 0 ; j < morphList.length ; j++){
+              if (finalMorphList.includes(morphList[j]) ){
+                let alreadyIncludes = false;
+                for (let m = 0; m < finalMorphList.length; m++){
+                  if (finalMorphList[m]===morphList[j] && finalGlossList[m] === glossList[j]){
+                    alreadyIncludes = true;
+                    console.log('found match:', finalMorphList[m], finalGlossList[m]);
                   }
-                    res.render('data_upload', {title: 'Sentences Uploaded'});
-//                      function (err) {
-//                        if (err) {return next(err); }
-//                        res.render('data_form', {title: 'IT WORKED', data: data});
-//                    });
-//                }
-//            });
-//        }
-};
+                }
+                if (alreadyIncludes === false){
+                  finalMorphList.push(morphList[j])
+                  finalGlossList.push(glossList[j])
+                }
 
+              } else {
+                finalMorphList.push(morphList[j])
+                finalGlossList.push(glossList[j])
+              }
+            }
+          }
+
+        data.save(function (err) {
+          if (err) {console.log(err)}
+          console.log("saved:" + data._id)
+          for (let l = 0; l < finalMorphList.length ; l++){
+            console.log(l, finalMorphList[l], finalGlossList[l])
+          }
+      });
+    };
+    for (let k = 0; k < finalMorphList.length; k++){
+      checkForExisting(finalMorphList[k],finalGlossList[k]).then(output => {
+        if (output){
+          const lexeme = new Lex(output)
+          lexeme.save();
+        }
+      }).catch((err)=>{
+        reject();
+    })
+    }
+    res.render('data_upload', {title: 'Sentences Uploaded'})
+};
 
 
 
@@ -155,9 +188,9 @@ exports.data_create_post = [
                 notes: req.body.notes,
                 tags: req.body.tags.split(' ')
                 });
-        addLexEntry(data['morph'],data['gloss']);
+        addLexemes(data.morph, data.gloss);
     if (!errors.isEmpty()) {
-        res.render('data_form', {title: 'Create Data', data_list: data, errors: errors.array()});
+        res.send({data_list: data, errors: errors.array()});
         return;
         }
     else {
@@ -198,75 +231,105 @@ exports.lexicon_add = function (req, res, next) {
 }
 
 
-function addLexEntry(morph,gloss){
-  if (morph.length == gloss.length){
-  let morphEndArray = [];
-  let glossEndArray = [];
-  for (let i = 0 ; i < morph.length; i++){
-    const morphSubArray = morph[i].split(/[-~+()\/\[\]]/);
-    const glossSubArray = gloss[i].split(/[-~+()\/\[\]]/);
-    if (morphSubArray.length == glossSubArray.length) {
-      for (let j = 0 ; j < morphSubArray.length ; j++){
-        morphEndArray.push(morphSubArray[j])
-        glossEndArray.push(glossSubArray[j])
-      }
-    }
-  }
-    function addToLex (morph, gloss){
-      return new Promise(function (resolve,reject){
-        let lexeme = new Lex({
-          morph : morph,
-          gloss : gloss
-        });
-        Lex.findOne({
-          morph : morph,
-          gloss : gloss
-        })
-          .exec( function(err, found_lexeme) {
-          if (err) {resolve(console.log(err)); }
-          if (found_lexeme) {
-//            resolve(
-              console.log('already exists')
-//            );
-          }
-          else {
-                if(lexeme['morph'] && lexeme['gloss']){
-                lexeme.save();
-//                resolve(
-                  console.log(lexeme)
-//                );
-              }
-               }
-            })
-      })
-    }
-    function loopThroughLex (morph, gloss){
-      return new Promise (function (resolve, reject) {
-      for (let i = 0; i  < morph.length ; i++){
-        addToLex(morph[i], gloss[i]);
-        }
-        resolve()
-      })
-    }
-  loopThroughLex(morphEndArray,glossEndArray).then( () =>
-    {aggregateFunc().then(outcome => Lex.deleteMany({_id: {$in: outcome}}, function (err,q) {
-    if(err) console.log(err);
-  }
-       ))
-     }
-  );
-  console.log('added');
-  }
-  else{
-    console.log("lengths don't match!")
-  }
-}
-
 
 
 exports.lexicon_format = function(req, res, next){
-res.send('not implemented')
+const morph = req.morph;
+const gloss = req.gloss;
+const wToM = wordsToMorphs(morph,gloss);
+const morphlist = wToM[0];
+const glosslist = wToM[1];
+for (let i = 0; i < morphlist.length ; i++){
+  checkForExisting(morphlist[i],glosslist[i]).then(output => {
+    if (output){
+      const lexeme = new Lex(output)
+      lexeme.save();
+    }
+  })
 }
+}
+
+function addLexemes(morph, gloss){
+  const wToM = wordsToMorphs(morph,gloss);
+  if (wToM){
+    const morphlist = wToM[0];
+    const glosslist = wToM[1];
+    for (let i = 0; i < morphlist.length; i++){
+      checkForExisting(morphlist[i],glosslist[i]).then(output => {
+        if (output){
+          const lexeme = new Lex(output)
+          lexeme.save();
+        }
+      }).catch((err)=>{
+        reject();
+    })
+  }
+}
+}
+
+
+
+
+
+//takes an array of words and an array of glosses,
+//makes sure that the lengths match, and converts it into an array
+//where the individual morphemes are the items.
+function wordsToMorphs(morph,gloss){
+  if (morph.length == gloss.length){
+    let morphEndArray = [];
+    let glossEndArray = [];
+    for (let i = 0 ; i < morph.length; i++){
+      const morphSubArray = morph[i].split(/[-~+()\/\[\]]/);
+      const glossSubArray = gloss[i].split(/[-~+()\/\[\]]/);
+      if (morphSubArray.length == glossSubArray.length) {
+        for (let j = 0 ; j < morphSubArray.length ; j++){
+          morphEndArray.push(morphSubArray[j])
+          glossEndArray.push(glossSubArray[j])
+        };
+      };
+    };
+  const morphAndGloss = [morphEndArray, glossEndArray];
+  return morphAndGloss
+  } else {
+    console.log("lengths don't match!")
+    return null
+  }
+};
+
+//checks whether an entry already exists for this combination of
+//glosses and morphs
+function checkForExisting(morph,gloss){
+  let lexeme = {
+            morph : morph,
+            gloss : gloss
+          };
+  return new Promise (function (resolve, reject){
+    Lex.findOne(lexeme).then(data =>{
+      if (data) {
+        resolve(null)
+      } else {
+        resolve(lexeme)
+      }
+    }).catch((err)=>{
+      reject();
+    })
+})
+}
+
+
+
+//
+
+
+
+
+
+
+
+
+
+
+
 
 
 
