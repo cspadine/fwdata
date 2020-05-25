@@ -54,8 +54,22 @@ function autoPopulateGloss(textArray){
   for (let i = 0; i < textArray.length;i++){
     morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
     glossSpaceContent += `<td><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`;
-    makeRequest(textArray[i]).then(res => formatGlossResults(res,i)).then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
+    const splitTextArray = textArray[i].split('-');
+      if (splitTextArray.length > 1){
+        for (let j = 0 ; j < splitTextArray.length ; j++){
+          if(splitTextArray[j]){
+            makeRequest(splitTextArray[j])
+            .then(res => formatGlossComplex(res,i,j))
+            .then(resList => {document.getElementById(`glossSuggestion${i}Tabletr`).innerHTML += `<td>${resList}</td>`} )
+          }
+        }
+      glossSuggestionContent += `<td><p id='glossSuggestion${i}'><table id='glossSuggestion${i}Table'><tr id='glossSuggestion${i}Tabletr'></tr></table></p></td>`
+      } else {
+    makeRequest(textArray[i])
+    .then(res => formatGlossResults(res,i))
+    .then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
     glossSuggestionContent += `<td><p id='glossSuggestion${i}'>here</p></td>`
+    }
   }
   morphSpaceContent += glossSpaceContent;
   morphSpaceContent += glossSuggestionContent;
@@ -69,6 +83,19 @@ function morphChangeInput(x){
   let input = document.getElementById(`morph_span_${x}`).innerHTML
   makeRequest(input).then(res => formatGlossResults(res,x)).then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
 }
+
+
+
+//handles formatting for morphologically complex word
+function formatGlossComplex (gloss,x,k){
+  let resList = '';
+    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
+    resList += `<input type='button' id='gloss_suggestion_${x}_${j}_${k}' value='${JSON.parse(gloss).lexRes[j].gloss}'><br>`
+    }
+    return resList;
+}
+
+
 
 
 //changes the gloss suggestion results from the server to an HTML readable format
@@ -138,8 +165,6 @@ const makeRequest = function (url, method){
 </script>
 
 <p>+++++++++++++++++++++++++++</p>
-
-
 
 
 <% if(data_list){ %>
