@@ -64,11 +64,14 @@ function autoPopulateGloss(textArray){
 
 }
 
+//when the morph cell is changed, the gloss suggestions are updated to
 function morphChangeInput(x){
   let input = document.getElementById(`morph_span_${x}`).innerHTML
   makeRequest(input).then(res => formatGlossResults(res,x)).then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
 }
 
+
+//changes the gloss suggestion results from the server to an HTML readable format
 function formatGlossResults (gloss,x) {
   let resList = '';
     for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
@@ -80,6 +83,8 @@ function formatGlossResults (gloss,x) {
   return resList
 }
 
+//on clicking a suggested gloss, the corresponding gloss cell autopopulates with the
+//selected value
 function addGloss(x,j){
   const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}`).value;
   document.getElementById(`gloss_span_${x}`).innerHTML = selectedGlossSuggestion;
@@ -90,7 +95,8 @@ function addGloss(x,j){
 
 
 
-
+//upon submitting the new data, this prevents the default submission, reformats the
+//data, and then submits the reformatted version.
 document.getElementById("newDataForm").addEventListener("submit", function(event){
   event.preventDefault()
   const textLength = document.getElementById('text').value.split(' ').length;
@@ -107,7 +113,7 @@ document.getElementById("newDataForm").addEventListener("submit", function(event
 
 
 
-
+//requests gloss suggestions from the server
 const makeRequest = function (url, method){
   const request = new XMLHttpRequest();
   return new Promise(function (resolve, reject) {
