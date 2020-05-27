@@ -227,7 +227,7 @@ const makeRequest = function (url, method){
         });
       }
     }
-    request.open(method || 'GET', 'http://localhost:3000/database/lexicon/'+url, true);
+    request.open(method || 'GET', '../lexicon/'+url, true);
     request.send();
   })
 }
