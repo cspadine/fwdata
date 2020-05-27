@@ -489,7 +489,8 @@ exports.lexicon_delete = function(req, res, next) {
 
 
 exports.lexicon_item = function(req, res, next) {
-  Lex.find({morph: req.params.item},'gloss')
+  const regex = new RegExp(`^${req.params.item}$`, 'i')
+  Lex.find({morph: {$regex: regex}},'gloss')
   .exec(function (err, list_morph){
     if (err) {return next(err); }
     res.send({lexRes: list_morph});
