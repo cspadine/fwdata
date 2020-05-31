@@ -233,15 +233,18 @@ const makeRequest = function (url, method){
 }
 
 
+
 </script>
 
 <p>+++++++++++++++++++++++++++</p>
-<p id='demo'>demo</p>
+
+
+<% if(message){ %>
+<h2> <%= message %> </h2>
+<% } %>
+
 
 <% if(data_list){ %>
-<h2> Added data </h2>
-
-
 <table>
   <tr>
     <td rowspan=6 style="vertical-align:top">

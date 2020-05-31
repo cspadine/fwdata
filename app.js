@@ -1,20 +1,39 @@
 var createError = require('http-errors');
 const dotenv = require("dotenv");
-dotenv.config();
-const multer = require('multer');
 var express = require('express');
 var path = require('path');
-var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
-const databaseRouter = require('./routes/database');
+const bcrypt = require('bcryptjs');
+const expressSession = require('express-session');
 const compression = require('compression');
 const helmet = require('helmet');
+const cors = require('cors');
+const passport = require('passport');
+var flash = require('connect-flash');
+var localStrategy = require('passport-local').Strategy;
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+dotenv.config();
+require('./auth/auth');
+//connect to routers
+const indexRouter = require('./routes/index');
+const databaseRouter = require('./routes/database');
+const usersRouter = require('./routes/users');
 
-var app = express();
+
+const app = express();
+app.use(cookieParser());
 app.use(helmet());
+app.use(require('./routes'));
+
+app.use(passport.initialize());
+app.use(passport.session());
+const Users = require('./models/users')
+
+
+
+
+
 
 
 //mongoose connection
@@ -23,27 +42,39 @@ const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, {useNewUrlParser:true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-
+mongoose.promosise = global.Promise;
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-
+app.use(cors());
+app.use(flash());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
 app.use(compression());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/database', databaseRouter);
+const secureRoute = require('./routes/secure_routes');
+app.use('/secure', passport.authenticate('jwt', { session : false }), secureRoute );
+app.use(bodyParser.urlencoded({ extended : false }));
+
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+
+
+
+
+
+
+
 
 // error handler
 app.use(function(err, req, res, next) {

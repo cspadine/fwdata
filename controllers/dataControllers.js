@@ -2,12 +2,15 @@ const validator = require('express-validator');
 const ObjectID = require('mongodb').ObjectID;
 
 const Data = require('../models/data');
-const Lang = require('../models/languages')
-const Lex = require('../models/lexicon')
+const Lang = require('../models/languages');
+const Lex = require('../models/lexicon');
+const User = require('../models/users');
 
+const helpers = require('../helper/lexiconFormatting.js');
+const wordsToMorphs = require('../helper/lexiconFormatting.js').wordsToMorphs;
+const morphCleaner = require('../helper/lexiconFormatting.js').morphCleaner;
+const checkForExisting = require('../helper/lexiconFormatting.js').checkForExisting;
 const async = require('async');
-const multer = require('multer');
-const upload = multer({ dest: 'uploads/' });
 const mongoose = require('mongoose');
 
 exports.index = function(req, res) {
@@ -148,7 +151,7 @@ exports.data_upload_post =
 
 // Display data create form on GET.
 exports.data_create_get = function(req, res, next) {
-    res.render('data_form', { title: 'Create Data', data_list:''});
+    res.render('data_form', { title: 'Create Data', data_list:'', message : ''});
 };
 
 
@@ -164,15 +167,6 @@ exports.data_create_post = [
     validator.body('gloss').trim(),
     validator.body('trans').trim(),
     validator.body('notes').trim(),
-    validator.sanitizeBody('source').escape(),
-    validator.sanitizeBody('text').escape(),
-    validator.sanitizeBody('ref').escape(),
-    validator.sanitizeBody('judgment').escape(),
-    validator.sanitizeBody('context').escape(),
-    validator.sanitizeBody('gloss').escape(),
-    validator.sanitizeBody('trans').escape(),
-    validator.sanitizeBody('notes').escape(),
-    validator.sanitizeBody('tags').escape(),
     (req, res, next) => {
         const errors = validator.validationResult(req);
         const cleanedMorph = morphCleaner(req.body.morph.split(','));
@@ -199,11 +193,11 @@ exports.data_create_post = [
                 if (err) { return next(err); }
 
                 if (found_text) {
-                    res.redirect('error');
+                    res.render('data_form', {title: 'Create Data', message : "This sentence is already in the database.", data_list: data, errors: errors.array()});
                 } else {
                     data.save(function (err) {
                         if (err) {return next(err); }
-                        res.render('data_form', {title: 'Create Data', data_list: data, errors: errors.array()});
+                        res.render('data_form', {title: 'Create Data', message: "", data_list: data, errors: errors.array()});
                     });
                 }
             });
@@ -212,17 +206,8 @@ exports.data_create_post = [
 ];
 
 
-//strip punctuation and leading/trailing spaces from morph row
-function morphCleaner(array){
-  let arrayCleaned = [];
-  const regex = /\b[^. ]?[\w-+~.]+[^. ]?\b/g;
-    for (let i = 0; i < array.length ; i++){
-      const lowercase = array[i].toLowerCase();
-      const cleanedText = lowercase.replace(/[.?*/()&!,"']+$/g,'').replace(/^[.?*&/()!,"']+/g,'').replace(/\s/g,'');
-      arrayCleaned.push(cleanedText)
-    }
-  return arrayCleaned;
-}
+
+
 
 exports.lexicon_add = function (req, res, next) {
   const morph = ['beep','bloop','bip'];
@@ -274,47 +259,7 @@ function addLexemes(morph, gloss){
 //takes an array of words and an array of glosses,
 //makes sure that the lengths match, and converts it into an array
 //where the individual morphemes are the items.
-function wordsToMorphs(morph,gloss){
-  if (morph.length == gloss.length){
-    let morphEndArray = [];
-    let glossEndArray = [];
-    for (let i = 0 ; i < morph.length; i++){
-      const morphSubArray = morph[i].split(/[-~+()\/\[\]]/);
-      const glossSubArray = gloss[i].split(/[-~+()\/\[\]]/);
-      if (morphSubArray.length == glossSubArray.length) {
-        for (let j = 0 ; j < morphSubArray.length ; j++){
-          morphEndArray.push(morphSubArray[j])
-          glossEndArray.push(glossSubArray[j])
-        };
-      };
-    };
-  const morphAndGloss = [morphEndArray, glossEndArray];
-  return morphAndGloss
-  } else {
-    console.log("lengths don't match!")
-    return null
-  }
-};
 
-//checks whether an entry already exists for this combination of
-//glosses and morphs
-function checkForExisting(morph,gloss){
-  let lexeme = {
-            morph : morph,
-            gloss : gloss
-          };
-  return new Promise (function (resolve, reject){
-    Lex.findOne(lexeme).then(data =>{
-      if (data) {
-        resolve(null)
-      } else {
-        resolve(lexeme)
-      }
-    }).catch((err)=>{
-      reject();
-    })
-})
-}
 
 
 
