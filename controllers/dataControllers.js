@@ -12,34 +12,47 @@ const morphCleaner = require('../helper/lexiconFormatting.js').morphCleaner;
 const checkForExisting = require('../helper/lexiconFormatting.js').checkForExisting;
 const async = require('async');
 const mongoose = require('mongoose');
+const jwt = require('jsonwebtoken');
+const fs = require('fs');
+
+const jwtKey = process.env.JWT_SECRET_WORD;
+
+
+
+
+
+
+
 
 exports.index = function(req, res) {
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
     async.parallel({
 	data_count: function(callback) {
             Data.countDocuments({}, callback);
             }
         },
         function(err, results) {
-            res.render('index', {title:'FWdata', error:err, data: results});
+            res.render('index', {title:'FWdata', error:err, data: results, user: user});
     });
 };
 
 
 
 // Display list of all data.
-exports.data_list = function(req, res, next) {
-    Data.find({})
-    .exec(function (err, list_data) {
-        if (err) { return next(err); }
-        res.render('data_list', { title: 'Data List', data_list: list_data });
-	});
-};
-
+//exports.data_list = function(req, res, next) {
+//    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+//    Data.find({})
+//    .exec(function (err, list_data) {
+//        if (err) { return next(err); }
+//        res.render('data_list', { title: 'Data List', data_list: list_data, user: user });
+//	});
+//
 
 
 
 // Display detail page for a specific data.
 exports.data_detail = function(req, res, next) {
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
     async.parallel({
         data: function(callback) {
 
@@ -53,7 +66,7 @@ exports.data_detail = function(req, res, next) {
                 err.status = 404;
                 return next(err);
         }
-        res.render('data_detail', {title: results.data.text, data: results.data});
+        res.render('data_detail', {title: results.data.text, data: results.data, user: user});
     });
 };
 
@@ -62,13 +75,16 @@ exports.data_detail = function(req, res, next) {
 
 // Display data upload form on GET.
 exports.data_upload_get = function(req, res, next) {
-    res.render('data_upload', {title: 'Upload Data'})
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('data_upload', {title: 'Upload Data', user: user})
 };
 
 
 //Handle data upload on POST.
 exports.data_upload_post =
     (req, res, next) => {
+      let uploadedData = [];
+      const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
       let finalMorphList = [];
       let finalGlossList = [];
       for(let i = 0; i< req.body.length; i++){
@@ -95,7 +111,7 @@ exports.data_upload_post =
                 notes: req.body[notes],
                 tags: req.body[tags].split(',')
                 });
-
+        uploadedData.push(data);
 
         const wToM = wordsToMorphs(data.morph,data.gloss);
         if (wToM){
@@ -140,7 +156,7 @@ exports.data_upload_post =
         reject();
     })
     }
-    res.render('data_upload', {title: 'Sentences Uploaded'})
+    res.render('data_display', {title: 'Sentences Uploaded', user: user, data_list: uploadedData})
 };
 
 
@@ -151,7 +167,8 @@ exports.data_upload_post =
 
 // Display data create form on GET.
 exports.data_create_get = function(req, res, next) {
-    res.render('data_form', { title: 'Create Data', data_list:'', message : ''});
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('data_form', { title: 'Create Data', data_list:'', message : '', user: user});
 };
 
 
@@ -168,6 +185,7 @@ exports.data_create_post = [
     validator.body('trans').trim(),
     validator.body('notes').trim(),
     (req, res, next) => {
+        const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
         const errors = validator.validationResult(req);
         const cleanedMorph = morphCleaner(req.body.morph.split(','));
         let data = new Data({
@@ -193,11 +211,11 @@ exports.data_create_post = [
                 if (err) { return next(err); }
 
                 if (found_text) {
-                    res.render('data_form', {title: 'Create Data', message : "This sentence is already in the database.", data_list: data, errors: errors.array()});
+                    res.render('data_form', {title: 'Create Data', message : "This sentence is already in the database.", data_list: data, errors: errors.array(), user: user});
                 } else {
                     data.save(function (err) {
                         if (err) {return next(err); }
-                        res.render('data_form', {title: 'Create Data', message: "", data_list: data, errors: errors.array()});
+                        res.render('data_form', {title: 'Create Data', message: "", data_list: data, errors: errors.array(), user: user});
                     });
                 }
             });
@@ -267,11 +285,34 @@ function addLexemes(morph, gloss){
 
 
 
+exports.data_export = function(req, res, next){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' )
+  const idList = req.body.data_export_id.split(',');
+  const d = new Date();
+  const n = String(d.getMonth()) + String(d.getDate()) + String(d.getYear())
+    + String(d.getHours()) + String(d.getMinutes())
+    + String(d.getSeconds()) + String(d.getMilliseconds());;
+  const fileName = `public/data_exports/${user}${n}.json`;
+  Data.find({_id:{$in : idList}})
+  .exec(function (err, list_data) {
+    if (err) { return next(err); }
+    const objectToWrite = JSON.stringify({sentences: list_data});
+    writeToFile(fileName, objectToWrite).then(() => res.download(fileName));
+  })
+};
 
 
 
 
-
+function writeToFile(filePath, arr)  {
+  return new Promise((resolve, reject) => {
+    const file = fs.createWriteStream(filePath);
+    file.write(arr);
+    file.end();
+    file.on("finish", () => { resolve(true); });
+    file.on("error", reject);
+  });
+}
 
 
 
@@ -279,11 +320,12 @@ function addLexemes(morph, gloss){
 
 
 // Display data delete form on GET.
-exports.data_delete_get = function(req, res, next) {
+exports.data_list = function(req, res, next) {
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
     Data.find({})
     .exec(function (err, list_data) {
         if (err) { return next(err); }
-        res.render('data_delete', { title: 'Data Delete', data_list: list_data });
+        res.render('data_display', { title: 'Data Delete', data_list: list_data, user: user });
 	});
 };
 
@@ -293,13 +335,14 @@ exports.data_delete_get = function(req, res, next) {
 // Handle data delete on POST.
 
 exports.data_delete_post = function(req, res) {
-  const dataid = req.body.dataid.split(',');
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+  const dataid = req.body.data_delete_id.split(',');
   Data.deleteMany({_id:{$in: dataid}}, function (err,q) {
    if(err) console.log(err);
        Data.find({})
        .exec(function (err, list_data) {
            if (err) { return next(err); }
-           res.render('data_delete', { title: 'Data Delete', data_list: list_data });
+           res.redirect('/database/data');
      });
 
  })}
@@ -310,13 +353,15 @@ exports.data_delete_post = function(req, res) {
 
 
 exports.data_search_get = function(req, res){
-  res.render('data_search',{data_list:''});
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+  res.render('data_search',{data_list:'', user: user});
 };
 
 exports.data_search_post = function(req, res){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
   const searchList = getQueryList(req);
   Data.find({$and:searchList}, function(err,q){
-       res.render('data_search',{data_list:q});
+       res.render('data_display',{data_list:q, user : user });
    });
 };
 
@@ -347,7 +392,48 @@ exports.data_update_get = function(req, res) {
 
 // Handle data update on POST.
 exports.data_update_post = function(req, res) {
-    res.send('NOT IMPLEMENTED: Data update POST');
+  const dataToUpdate = req.body.data_change_ids.split(',');
+  let updateContent = {};
+  if (req.body.text){
+    updateContent.text = req.body.text;
+  }
+  if (req.body.gloss){
+    updateContent.gloss = req.body.gloss.split(',');
+  }
+  if (req.body.morph){
+    updateContent.morph = req.body.morph.split(',');
+  }
+  if (req.body.judgment){
+    updateContent.judgment = req.body.judgment;
+  }
+  if (req.body.context){
+    updateContent.context = req.body.context;
+  }
+  if (req.body.trans){
+    updateContent.trans  = req.body.trans;
+  }
+  if (req.body.notes){
+    updateContent.notes = req.body.notes;
+  }
+  if (req.body.tags){
+    updateContent.tags = req.body.tags;
+  }
+  if (req.body.source){
+    updateContent.source = req.body.source;
+  }
+  if (req.body.ref){
+    updateContent.ref = req.body.ref;
+  }
+  if (req.body.lang){
+    updateContent.lang = req.body.lang;
+  }
+  Data.updateMany({_id: {$in: dataToUpdate}},{$set: updateContent }, function(err, result) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send(result);
+    }
+  })
 };
 
 
@@ -355,19 +441,21 @@ exports.data_update_post = function(req, res) {
 
 // Display list of all data.
 exports.language_list = function(req, res, next) {
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
     Data.find({})
     .exec(function (err, list_data) {
         if (err) { return next(err); }
-        res.render('test', { title: 'Data List', data_list: list_data });
+        res.render('test', { title: 'Data List', data_list: list_data, user: user});
 	});
 };
 
 //Display all lexical items
 exports.lexicon_list_get = function(req, res, next){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
   Lex.find({})
   .exec(function (err, list_lex) {
     if (err) { return next(err); }
-      res.render('lexicon_list', {title: 'Lexicon', lex:  list_lex });
+      res.render('lexicon_list', {title: 'Lexicon', lex:  list_lex, user: user });
 });
 }
 
@@ -375,36 +463,6 @@ exports.lexicon_list_dups = function(req, res, next) {
   aggregateFunc().then(outcome => res.send(outcome))
 
 }
-
-
-function aggregateFunc ()
-  { return new Promise(function (resolve, reject){
-    Lex.aggregate([
-        { $group: {
-          _id: { firstField: "$morph", secondField: "$gloss" },
-          uniqueIds: { $addToSet: "$_id" },
-          count: { $sum: 1 }
-        }},
-        { $match: {
-          count: { $gt: 1 }
-        }}
-      ], function (err, result) {
-        if (err) {
-          console.log(err);
-          reject();
-        }
-        let idList = [];
-        for (let i = 0 ; i < result.length ; i++){
-            result[i]['uniqueIds'].shift();
-            idList.push(...result[i]['uniqueIds'])
-        }
-        idList.map(String);
-        console.log(idList);
-        resolve(idList)
-      });
-      });
-
-    }
 
 
 

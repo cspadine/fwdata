@@ -1,0 +1,21 @@
+<!-- views/partials/topnav.ejs -->
+<link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+
+
+<div class='topnav'>
+  <a id='home' href='/'>Home</a>
+  <a id='data_list' href='/secure/all'>Data</a>
+  <a id='create' href='/secure/create'>Create new Data</a>
+  <div id='login_signup'>
+  <a id='login' href='/users/login'>Log In</a>
+  <a id='signup' href='/users/signup'>Sign Up</a>
+  </div>
+</div>
+
+<script>
+const user = <%- JSON.stringify(user) %>;
+  if (user){
+    document.getElementById('login_signup').innerHTML = `<a> ${user} </a> <a id='logout' href='/users/logout'>Log Out</a>`;
+  }
+</script>

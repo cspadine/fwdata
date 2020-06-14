@@ -21,12 +21,3 @@ exports.login_post = passport.authenticate('login', {
 		failureFlash : true
   	}
   )
-
-
-  exports.signup_get = function(req, res, next) {
-      res.render('signup')
-  };
-
-  exports.signup_post = function(req, res, next) {
-      res.send('sign up')
-  };

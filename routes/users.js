@@ -3,27 +3,28 @@ var passport = require('passport');
 const bodyParser = require('body-parser');
 var Users = require('../models/users');
 const jwt = require('jsonwebtoken');
+const localStrategy = require('passport-local').Strategy;
 var router = express.Router();
-
+const jwtKey = process.env.JWT_SECRET_WORD;
 
 
 router.get('/', function (req, res) {
-    res.render('index', { user : req.user });
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('index', { user : user });
 });
 
 router.get('/signup', function(req, res) {
-    res.render('signup', { });
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('signup', {user : user });
 });
 
 
 
 
 //new sign up
-router.post('/signup', passport.authenticate('signup', { session : false }) , async (req, res, next) => {
-  res.json({
-    message : 'Signup successful',
-    user : req.user
-  });
+router.post('/signup', passport.authenticate('signup', { session : false , failureRedirect : '/users/signup' }) , async (req, res, next) => {
+      const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('index', { user : user });
 });
 
 
@@ -32,7 +33,8 @@ router.post('/signup', passport.authenticate('signup', { session : false }) , as
 
 
 router.get('/login', function(req, res) {
-    res.render('login', { user : req.user });
+          const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    res.render('login', { user : user });
 });
 
 //router.post('/login', passport.authenticate('local'), function(req, res) {
@@ -42,6 +44,7 @@ router.get('/login', function(req, res) {
 
 
 router.post('/login', async (req, res, next) => {
+    const existingUsername = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
   passport.authenticate('login', async (err, user, info) => {     try {
       if(err || !user){
         const error = new Error('An Error occurred')
@@ -53,18 +56,16 @@ router.post('/login', async (req, res, next) => {
         //user password in the token so we pick only the email and id
         const body = { _id : user._id, username: user.username };
         //Sign the JWT token and populate the payload with the user email and id
-        const token = jwt.sign({ user : body },'top_secret');
+        const token = jwt.sign({ user : body },jwtKey);
 				let cookieOptions = {
-    			expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000 ),
+    			expires: new Date(Date.now() + 90 * 24 * 60 * 20),
     			httpOnly: true,
 					};
 
         return res
     			.cookie('jwt', token, cookieOptions)
     			.status(200)
-    			.json({
-        		msg: 'Successfully logged in',
-    		});
+    			.redirect('/');
 
       });     } catch (error) {
       return next(error);
@@ -75,8 +76,8 @@ router.post('/login', async (req, res, next) => {
 
 
 router.get('/logout', function(req, res) {
-    req.logout();
-    res.redirect('/');
+    res.clearCookie('jwt')
+    res.redirect('/')
 });
 
 router.get('/ping', function(req, res){
@@ -86,32 +87,9 @@ router.get('/ping', function(req, res){
 
 
 router.get('/session', function(req,res){
-	res.send(console.log(req.headers))
+  const user = jwt.verify(req.cookies.jwt, jwtKey).user.username;
+	res.send(console.log(user))
 })
-
-
-
-
-const authenticateJWT = (req, res, next) => {
-    const authHeader = req.headers.authorization;
-
-    if (authHeader) {
-        const token = authHeader.split(' ')[1];
-
-        jwt.verify(token, 'top_secret', (err, user) => {
-            if (err) {
-                return res.sendStatus(403);
-            }
-
-            req.user = user;
-            next();
-        });
-    } else {
-        res.sendStatus(401);
-    }
-};
-
-
 
 
 

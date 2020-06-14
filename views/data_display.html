@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+</head>
+<p id='test'></p>
+<p id='test1'></p>
+<p id='test2'></p>
+<body onload='showData(dataList)'>
+  <header>
+    <%- include("./partials/topnav") %>
+  </header>
+
+
+<div id='searchdiv' class='sidebar'>
+  <h3>Search</h3>
+  <form action='/secure/search' method='post'>
+  <input type='text' name='text' placeholder='Search in text' style='width: 500px;'><br>
+  <input type='text' name='gloss' placeholder='Search in gloss' style='width: 500px;'><br>
+  <input type='text' name='trans' placeholder='Search in trans' style='width: 500px;'><br>
+  <input type='text' name='source' placeholder='Search in source' style='width: 500px;'><br>
+  <input type='text' name='ref' placeholder='Search in ref' style='width: 500px;'><br>
+  <input type='text' name='notes' placeholder='Search in notes' style='width: 500px;'><br>
+  <input type='text' name='context' placeholder='Search in context' style='width: 500px;'><br>
+  <input type='text' name='tags' placeholder='Search in tags' style='width: 500px;'><br>
+  <input type='text' name='judgment' placeholder='Search in judgment' style='width: 500px;'><br>
+  <input type='text' name='language' placeholder='Search in language' style='width: 500px;'><br>
+  <input type='submit' value='Submit'>
+  </form>
+</div>
+
+<div id='changediv' class='sidebar' >
+      <h3>Change Selected</h3>
+  <button onclick='checkAll()'>Select all</button>
+  <form action='/database/data/update' method='POST'>
+
+    <input type='text' placeholder='Judgment' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='judgment' id='judgment'/><br>
+    <input type='text' placeholder='Context' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='context' id='context'/><br>
+      <input type='text' placeholder='Text' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='text' id='text'/>
+
+    <div id='morph_space'></div>
+        <input type='hidden' name='morph' id='morph' value=''/><br>
+        <input type='hidden' name='gloss' id='gloss' value=''/><br>
+        <input type='text' placeholder='Translation' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='trans' id='trans' /><br>
+        <input type='text' placeholder='Notes' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='notes' id='notes' /><br>
+        <input type='text' placeholder='Tags' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='tags' id='tags' /><br>
+        <input type='text' placeholder='Source' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='source' id='source' /><br>
+        <input type='text' placeholder='Reference' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='ref' id='ref' /><br>
+        <input type='text' placeholder='Language' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='lang' id='lang' /><br>
+        <input type='hidden' id='data_change_ids' name='data_change_ids'>
+      <input type='submit' value='Submit'>
+  </form>
+
+</div>
+
+<div id='uploaddiv' class='sidebar'>
+  <h3>Upload JSON file</h3>
+  <form id='data_form' action='../secure/upload' method='post'>
+  <input type='file' id='data_file'>
+    <button type='button' id='uploadingButton' onclick='readFile()'>Show File Contents</button>
+  </form>
+  <div id='uploadButtonDiv'>
+  </div>
+  <div id='UploadBulkEditDiv'>
+  </div>
+</div>
+
+<div id='exportdiv' class='sidebar'>
+  <h3>Export Selected</h3>
+  <button onclick='checkAll()'>Select all</button>
+  <form action='/database/data/export' method='post'>
+    <input type='hidden' id='data_export_id' name='data_export_id'/>
+    <button type='submit'>export as JSON</button>
+  </form>
+</div>
+
+<div id='deletediv' class='sidebar'>
+  <h3>Delete Selected</h3>
+<button onclick='checkAll()'>Select all</button>
+  <form action='/database/data/delete/delete' method='post' id='datadeleteform'>
+    <input name='data_delete_id' id='data_delete_id' type='hidden'>
+    <input type='submit' value='Delete selected'>
+  </form>
+</div>
+
+<div id='sidebar_tabs_0' class='sidebar_tabs' onclick='hideMenu("searchdiv")'>search</div>
+<div class='sidebar_tabs' id='sidebar_tabs_1' onclick='hideMenu("changediv")'>edit</div>
+<div class='sidebar_tabs' id='sidebar_tabs_2' onclick='hideMenu("exportdiv")'>export</div>
+<div class='sidebar_tabs' id='sidebar_tabs_3' onclick='hideMenu("deletediv")'>delete</div>
+<div class='sidebar_tabs' id='sidebar_tabs_4' onclick='hideMenu("uploaddiv")'>upload</div>
+
+
+
+
+
+
+
+
+
+  <div id='dataSpace'>
+<ol id='dataOrderedList'>
+</ol>
+</div>
+
+
+  <script>
+function hideMenu(element){
+    const sidebarTabs = document.getElementsByClassName('sidebar_tabs');
+    const sidebarElement = document.getElementById(element);
+    const sidebarElements = document.getElementsByClassName('sidebar');
+    for (let i = 0 ; i < sidebarElements.length ; i++){
+      if (sidebarElements[i] != sidebarElement){
+        sidebarElements[i].style.display = "none";
+      }
+    }
+  if (sidebarElement.style.display === "block"){
+    sidebarElement.style.display = "none";
+    for (let i = 0 ; i < sidebarTabs.length ; i++){
+      sidebarTabs[i].style.right ='0px';
+    }
+  } else {
+    sidebarElement.style.display = "block";
+    for (let i = 0 ; i < sidebarTabs.length ; i++){
+      sidebarTabs[i].style.right = '230px';
+    };
+  };
+};
+
+
+
+let toDeleteList = [];
+const dataList = <%- JSON.stringify(data_list) %>;
+const dataSpace = document.getElementById('dataOrderedList');
+
+function showData(input){
+  dataSpace.innerHTML = '';
+
+  for(let i = 0;i < input.length; i++){
+    const li = document.createElement('li');
+    li.setAttribute('id', 'exampleItem'+i);
+    let divContents = '';
+
+    if(input[i]['context']){
+      divContents += '<p><i>'+input[i]['context']+'</i><p>'
+    }
+    divContents += `<table class='exampleTable' id='exampleTable${i}' onclick='selectFunction(${i})' ><tr>`
+    if (input[i]['judgment']){
+    divContents += `<td rowspan='2' valign='top'>${input[i]['judgment']}</td>`
+    }
+    const textArray = input[i]['text'].split(' ');
+    for(let j = 0; j < textArray.length; j++){
+      divContents += "<td >"+textArray[j]+"</td>";
+    }
+    divContents += "</tr><tr>"
+    for(let k = 0; k < input[i]['gloss'].length; k++){
+      divContents += "<td>"+input[i]['gloss'][k]+"</td>";
+    }
+    divContents += `</tr></table>`
+    divContents += "<p>"+ input[i]['trans'] +'</p>';
+
+    divContents += `
+          <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})' class='metadataButton'>Show metadata </button>
+      `
+      divContents +=       `<div  style="display: none" class='metadataItem' id='metadataSource${i}'>
+            ${input[i]['notes'] ? 'Notes: '+input[i]['notes'] + '<br>' : '' }
+            ${(!input[i]['tags'] === []) ? 'Tags: '+input[i]['tags']+ '<br>' : '' }
+            ${input[i]['source'] ? 'Source: '+input[i]['source']+ '<br>' : '' }
+            ${input[i]['ref'] ? 'Reference: '+input[i]['ref']+ '<br>' : '' }
+            ${input[i]['lang'] ? 'Language: '+input[i]['lang']+ '<br>' : '' }
+            </div><br><br>`
+
+  //    </div>
+  //    <button id='showMetadataDivButton${i}'onclick='showMetadata(${i})'>Show metadata </button>
+  //    <br><br>`
+    li.innerHTML = divContents;
+    dataSpace.appendChild(li);
+    }
+}
+
+function showMetadata(i){
+  const source = document.getElementById(`metadataSource${i}`);
+  if (source.style.display === 'none'){
+    source.style.display = 'block';
+    document.getElementById(`showMetadataDivButton${i}`).innerHTML = 'Hide metadata';
+  }
+  else if (source.style.display === 'block'){
+    source.style.display = 'none'
+    document.getElementById(`showMetadataDivButton${i}`).innerHTML = 'Show metadata';
+  }
+}
+
+
+function selectFunction(i){
+  const exampleItem = document.getElementById('exampleItem'+i);
+  if (exampleItem.style['background-color'] === 'gray'){
+      exampleItem.setAttribute('style', 'background-color:black')
+               if (toDeleteList.includes(dataList[i]['_id'])){
+                const idIndex = toDeleteList.indexOf(dataList[i]['_id']);
+                toDeleteList.splice(idIndex, 1);
+                document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+                document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+                document.getElementById('test').innerHTML = toDeleteList;
+              }
+      }
+       else {
+  exampleItem.setAttribute('style', 'background-color:gray');
+  if (!toDeleteList.includes(dataList[i]['_id'])) {
+    toDeleteList.push(dataList[i]['_id']).toString();
+    document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('test').innerHTML = toDeleteList;
+  }
+};
+};
+
+
+
+let dataUploadList = [];
+function selectUploadFunction(i){
+  const exampleItem = document.getElementById('uploadItem'+i);
+  if (exampleItem.style['background-color'] === 'gray'){
+      exampleItem.setAttribute('style', 'background-color:black')
+               if (dataUploadList.includes(i)){
+                const idIndex = dataUploadList.indexOf(i);
+                dataUploadList.splice(idIndex, 1);
+                document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+                document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+                document.getElementById('test').innerHTML = dataUploadList;
+              }
+      }
+       else {
+  exampleItem.setAttribute('style', 'background-color:gray');
+  if (!dataUploadList.includes(i)) {
+    dataUploadList.push(i).toString();
+    document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('test').innerHTML = dataUploadList;
+  }
+};
+};
+
+
+
+
+
+
+
+let uploadCheckVal = false;
+
+function uploadCheckAll(){
+  if (uploadCheckVal === false){
+  for (let i= 0; i < 57; i++){
+  const checkbox = document.getElementById(`uploadItem${i}`);
+  checkbox.setAttribute('style', 'background-color:gray');
+  if (!dataUploadList.includes(i)){
+    dataUploadList.push(i).toString();
+    document.getElementById('test').innerHTML = dataUploadList;
+  };
+  };
+  uploadCheckVal = true;
+    document.getElementById('test2').innerHTML = uploadCheckVal
+}
+else {
+  for (let i= 0; i < 57; i++){
+  let checkbox = document.getElementById('uploadItem'+i);
+  checkbox.setAttribute('style', 'background-color:black');
+    if (dataUploadList.includes(i)){
+      let idIndex = dataUploadList.indexOf(i);
+      dataUploadList.splice(idIndex, 1);
+      document.getElementById('test').innerHTML = dataUploadList;
+    };
+  };
+  uploadCheckVal = false;
+  document.getElementById('test2').innerHTML = uploadCheckVal
+}
+}
+
+
+
+
+
+
+let checkVal = false;
+
+function checkAll(){
+  if (checkVal === false){
+  for (let i= 0; i < dataList.length; i++){
+  const checkbox = document.getElementById('exampleItem'+i);
+  checkbox.setAttribute('style', 'background-color:gray');
+  if (!toDeleteList.includes(dataList[i]['_id'])){
+    toDeleteList.push(dataList[i]['_id']).toString();
+    document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('test').innerHTML = toDeleteList;
+  };
+  };
+  checkVal = true;
+    document.getElementById('test2').innerHTML = String(checkVal)
+} else {
+  for (let i= 0; i < dataList.length; i++){
+  let checkbox = document.getElementById('exampleItem'+i);
+  checkbox.setAttribute('style', 'background-color:black');
+    if (toDeleteList.includes(dataList[i]['_id'])){
+      let idIndex = toDeleteList.indexOf(dataList[i]['_id']);
+      toDeleteList.splice(idIndex, 1);
+      document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
+      document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
+      document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+      document.getElementById('test').innerHTML = toDeleteList;
+    };
+  };
+  checkVal = false;
+  document.getElementById('test2').innerHTML = checkVal
+}
+}
+
+
+
+
+
+
+
+
+
+
+let uploadNumber ;
+
+
+  function readFile() {
+      let file = document.getElementById('data_file').files[0];
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = function() {
+          const datalist = JSON.parse(reader.result);
+          uploadNumber = datalist['sentences'].length;
+          let formText = "<form id='uploadForm' action='/secure/upload' method='post'><ol>";
+                  formText += `<input type='hidden' name='length' value='${datalist['sentences'].length}'></p>${datalist['sentences'].length} examples to add</p>`  ;
+          for (let i = 0; i < datalist['sentences'].length; i++){
+            const context = datalist["sentences"][i]["context"] ? datalist["sentences"][i]["context"] : '';
+            const judgment = datalist["sentences"][i]["judgment"] ? datalist["sentences"][i]["judgment"] : '';
+            const text = datalist["sentences"][i]["text"] ? datalist["sentences"][i]["text"] : '';
+            const morph = datalist["sentences"][i]["morph"] ? datalist["sentences"][i]["morph"] : datalist["sentences"][i]["text"].split(' ');
+            const gloss = datalist["sentences"][i]["gloss"] ? datalist["sentences"][i]["gloss"] : '';
+            const trans = datalist["sentences"][i]["trans"] ? datalist["sentences"][i]["trans"].replace(/\"/g,"'") : '';
+            const notes = datalist["sentences"][i]["notes"] ? datalist["sentences"][i]["notes"].replace(/\"/g,"'") : '';
+            const tags = datalist["sentences"][i]["tags"] ? datalist["sentences"][i]["tags"] : '';
+            const source = datalist["source"] ? datalist["source"] : '';
+            const ref = datalist["sentences"][i]["ref"] ? datalist["sentences"][i]["ref"] : '';
+            const lang = datalist["sentences"][i]["lang"] ? datalist["sentences"][i]["lang"] : '';
+          formText += `<li class='uploadli' id='uploadItem${i}' onclick='selectUploadFunction(${i})'><input type='text' placeholder='No context' style='width: 500px;'  id='context${i}' name='context${i}' value='${context}'><br>`;
+          formText += `<input type='text' name='judgment${i}' id='judgment${i}' style='width: 20px;' value='${judgment}'>`
+          formText += `<input type='text' name='text${i}' id='text${i}' style='width: 475px;' value='${text}'><br>`;
+          formText += `<input type='text'style='width: 500px;' placeholder='No morph' id='morph${i}' name='morph${i}' value='${morph}'><br>`;
+          formText += `<input type='text'style='width: 500px;' placeholder='No gloss' id='gloss${i}' name='gloss${i}' value='${gloss}'><br>`;
+          formText += `<input type='text' style='width: 500px;' placeholder='No translation' id='trans${i}' name='trans${i}' value="`
+          formText += trans;
+          formText += `"><br>`;
+          formText += `<input type='text'  style='width: 500px;' placeholder='No notes' id='notes${i}' name='notes${i}' value="${notes}"><br>`;
+          formText += `<input type='text' style='width: 500px;' placeholder='No tags' id='tags${i}' name='tags${i}' value='${tags}'><br>`;
+          formText += `<input type='text' style='width: 500px;' placeholder='No source' id='source${i}' name='source${i}' value='${source}'><br>`;
+          formText += `<input type='text' style='width: 500px;' placeholder='No ref' id='ref${i}' name='ref${i}' value='${ref}'><br>`;
+          formText += `<input type='text'  style='width: 500px;' placeholder='No lang' id='lang${i}' name='lang${i}' value='${lang}'><br><br>`;
+        }
+
+
+          document.getElementById('uploadButtonDiv').innerHTML = `<button onclick='uploadCheckAll()'>Select All</button>`
+
+          document.getElementById('dataSpace').innerHTML = formText;
+
+          document.getElementById('UploadBulkEditDiv').innerHTML =
+          `<input type='text' placeholder='Context' id='bulkEditContext'><br>
+          <input type='text' placeholder='Judgment' id='bulkEditJudgment'><br>
+          <input type='text' placeholder='Notes' id='bulkEditNotes'><br>
+          <input type='text' placeholder='Tags' id='bulkEditTags'><br>
+          <input type='text' placeholder='Source' id='bulkEditSource'><br>
+          <input type='text' placeholder='Reference' id='bulkEditReference'><br>
+          <input type='text' placeholder='Language' id='bulkEditLanguage'><br>
+          <button onclick='uploadEditSelected()'>Edit Selected</button>
+          <button onclick='uploadFormSubmit()'>Add to Database</button>
+          `
+
+
+    };
+    reader.onerror = function() {
+      document.getElementById('dataSpace').innerHTML = reader.error;
+    };
+  };
+
+function uploadFormSubmit(){
+  document.getElementById('uploadForm').submit();
+}
+
+function uploadEditSelected(){
+  const context = document.getElementById('bulkEditContext').value;
+  const judgment = document.getElementById('bulkEditJudgment').value;
+  const notes = document.getElementById('bulkEditNotes').value;
+  const tags = document.getElementById('bulkEditTags').value;
+  const source = document.getElementById('bulkEditSource').value;
+  const ref = document.getElementById('bulkEditReference').value;
+  const lang = document.getElementById('bulkEditLanguage').value;
+  document.getElementById('test1').innerHTML = "context";
+  if(context){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`context${i}`).value = context;
+      }
+    }
+  }
+
+  if(judgment){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`judgment${i}`).value = judgment;
+      }
+    }
+  }
+
+if(notes){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`notes${i}`).value = notes;
+      }
+    }
+  }
+
+  if(tags){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`tags${i}`).value = tags;
+      }
+        }
+  }
+
+  if(source){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`source${i}`).value = source;
+      }
+    }
+  }
+
+  if(ref){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`ref${i}`).value = ref;
+      }
+    }
+  }
+
+  if(lang){
+    for (let i = 0 ; i < uploadNumber ; i++){
+      if(dataUploadList.includes(i)){
+        document.getElementById(`lang${i}`).value = lang;
+      }
+    }
+  }
+}
+
+
+
+
+
+
+</script>
+
+
+
+
+
+
+</body>
+</html>

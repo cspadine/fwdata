@@ -30,7 +30,7 @@ app.use(passport.initialize());
 app.use(passport.session());
 const Users = require('./models/users')
 
-
+const jwtKey = process.env.JWT_SECRET_WORD;
 
 
 
@@ -60,8 +60,9 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/database', databaseRouter);
 const secureRoute = require('./routes/secure_routes');
-app.use('/secure', passport.authenticate('jwt', { session : false }), secureRoute );
+app.use('/secure', passport.authenticate('jwt', { session : false, failureRedirect : '/users/login' }), secureRoute );
 app.use(bodyParser.urlencoded({ extended : false }));
+const jwt = require('jsonwebtoken');
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -83,8 +84,9 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
   res.status(err.status || 500);
-  res.render('error');
+  res.render('error', {user:user});
 });
 
 module.exports = app;

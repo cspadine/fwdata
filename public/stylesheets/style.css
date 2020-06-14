@@ -2,7 +2,7 @@ html {background-color: black
 }
 
 body {
-  padding: 30px;
+  padding: 20px;
   font: 14px "Times New Roman", Times, serif;
   color: white;
 }
@@ -81,4 +81,60 @@ a {
   position: absolute;
   width: 100%;
   left: 0;
+}
+
+
+.sidebar_tabs{
+  margin: 20px;
+  padding: 14px;
+  width: 30px;
+  cursor: pointer;
+  position: fixed;
+  height: 20px;
+  overflow: hidden;
+  right: 0px;
+}
+
+#sidebar_tabs_0 {
+  color: black;
+  background-color: gray;
+  top: 8px;
+}
+
+#sidebar_tabs_1 {
+  background-color: white;
+  color: gray;
+  top: 55px;
+}
+
+#sidebar_tabs_2 {
+  background-color: gray;
+  color: black;
+  top: 103px;
+}
+
+#sidebar_tabs_3 {
+  background-color: white;
+  color: gray;
+  top: 150px;
+}
+
+#sidebar_tabs_4 {
+  background-color: gray;
+  color: black;
+  top: 197px;
+}
+
+.sidebar {
+  margin: 20px;
+  padding: 14px;
+  width: 200px;
+  background-color: #f1f1f1;
+  position: fixed;
+  height: 100%;
+  overflow: auto;
+  right: 0px;
+  top: 8px;
+  display: none;
+  color: black;
 }

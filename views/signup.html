@@ -1,18 +1,64 @@
 <!DOCTYPE html>
 <html>
+<head>
+
+
+  <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+</head>
 <body>
-  <h1>Sign Up Page</h1>
+
+  <header>
+    <%- include("./partials/topnav") %>
+  </header>
+
+
+
+  <h1>Sign Up</h1>
 
 
   <form action='' method='POST'>
     <label for='username'>User name:</label><br>
-    <input type='text' id='username' name='username'><br>
+    <input type='text' id='username' name='username' oninput='activateSubmit()'><br>
     <label for='password'>Password:</label><br>
-    <input type='text' id='password' name='password'>
-    <button type='submit'> Submit </button>
+    <input type='password' id='password' name='password' oninput='passwordMatch()'><br>
+    <label for='password_verify'>Verify Password:</label><br>
+    <input type='password' id='password_verify' name='password_verify' oninput='passwordMatch()'><br>
+    <button type='submit' id='submit_button' disabled> Submit </button>
   </form>
+<p id='message'></p>
+
 
 <script>
+function passwordMatch(){
+  const password = document.getElementById('password').value;
+  const verify = document.getElementById('password_verify').value;
+  const username = document.getElementById('username').value;
+  if (password && verify && password != verify){
+    document.getElementById('message').innerHTML = 'Passwords must match.'
+    document.getElementById('submit_button').disabled = true;
+  }
+  if (password && verify && password === verify){
+    document.getElementById('message').innerHTML = '';
+    if (username){
+      document.getElementById('submit_button').disabled = false;
+    }
+  } else {
+    document.getElementById('submit_button').disabled = true;
+  }
+}
+
+function activateSubmit(){
+  const password = document.getElementById('password').value;
+  const verify = document.getElementById('password_verify').value;
+  const username = document.getElementById('username').value;
+  if (username && password === verify){
+    document.getElementById('submit_button').disabled = false;
+  } else {
+    document.getElementById('submit_button').disabled = true;
+  }
+}
+
 
 
 </script>

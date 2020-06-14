@@ -20,16 +20,16 @@ router.get('/data/upload', data_controller.data_upload_get);
 router.post('/data/upload', data_controller.data_upload_post);
 
 // GET request to delete data.
-router.get('/data/delete', data_controller.data_delete_get);
+//router.get('/data/delete', data_controller.data_delete_get);
 
 // POST request to delete data.
-router.post('/data/delete', data_controller.data_delete_post);
+router.post('/data/delete/delete', data_controller.data_delete_post);
 
 // GET request to update data.
-router.get('/data/:id/update', data_controller.data_update_get);
+router.get('/data/update', data_controller.data_update_get);
 
 // POST request to update data.
-router.post('/data/:id/update', data_controller.data_update_post);
+router.post('/data/update', data_controller.data_update_post);
 
 // GET request to get search data page.
 router.get('/data/search', data_controller.data_search_get);
@@ -42,6 +42,9 @@ router.get('/data/:id', data_controller.data_detail);
 
 // GET request for list of all data items.
 router.get('/data', data_controller.data_list);
+
+
+router.post('/data/export', data_controller.data_export);
 
 router.get('/lexicon', data_controller.lexicon_list_get);
 router.post('/lexicon/dups', data_controller.lexicon_list_dups);
