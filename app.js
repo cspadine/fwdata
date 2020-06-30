@@ -75,11 +75,16 @@ app.use(passport.session());
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(compression());
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended : true }));
 app.use(bodyParser.json())
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyParser.urlencoded({ extended : true }));
+app.use(bodyParser.json())
+
 
 //connect routes to app
 app.use('/', indexRouter);
@@ -88,8 +93,6 @@ app.use('/database', databaseRouter);
 //secure routes require a password and return data specific to the user.
 app.use('/secure', passport.authenticate('jwt', { session : false, failureRedirect : '/users/login' }), secureRoute );
 
-//require helper functions for user validation
-require('./auth/auth');
 
 
 //mongoose connection
@@ -106,8 +109,8 @@ app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
 
-
-
+//require helper functions for login and signup
+require('./auth/auth');
 
 
 
