@@ -7,13 +7,14 @@ const jwtKey = process.env.JWT_SECRET_WORD;
 //Create a passport middleware to handle user registration
 passport.use('signup', new localStrategy({
   usernameField : 'username',
-  passwordField : 'password'
-}, async (username, password, done) => {
+  passwordField : 'password',
+  passReqToCallback : true
+}, async (req, username, password, done) => {
     try {
       const existingUser = await Users.findOne({ username });
       if( existingUser ){
         //If the user isn't found in the database, return a message
-        return done(null, false, { message : 'A user with that name already exists.'});
+        return done(null, false, req.flash('error', 'That email is already taken.'));
       } else {
       //Save the information provided by the user to the the database
       const user = await Users.create({ username, password });
@@ -27,23 +28,24 @@ passport.use('signup', new localStrategy({
 //Create a passport middleware to handle User login
 passport.use('login', new localStrategy({
   usernameField : 'username',
-  passwordField : 'password'
-}, async (username, password, done) => {
+  passwordField : 'password',
+  passReqToCallback : true
+}, async (req, username, password, done) => {
   try {
     //Find the user associated with the email provided by the user
     const user = await Users.findOne({ username });
     if( !user ){
       //If the user isn't found in the database, return a message
-      return done(null, false, { message : 'User not found'});
+      return done(null, false, req.flash('error', 'No user with that email exists.'));
     }
     //Validate password and make sure it matches with the corresponding hash stored in the database
     //If the passwords match, it returns a value of true.
     const validate = await user.isValidPassword(password);
     if( !validate ){
-      return done(null, false, { message : 'Wrong Password'});
+      return done(null, false, req.flash('error', 'Incorrect password.'));
     }
     //Send the user information to the next middleware
-    return done(null, user, { message : 'Logged in Successfully'});
+    return done(null, user, req.flash('success', 'Login successful'));
   } catch (error) {
     return done(error);
   }
