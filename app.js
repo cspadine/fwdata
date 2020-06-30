@@ -1,39 +1,95 @@
-var createError = require('http-errors');
+const express = require('express');
+
+
+//const createError = require('http-errors');
+
+//access global variables in a .env file
 const dotenv = require("dotenv");
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
+//use file and directory paths
+const path = require('path');
+//log requestest and responses
+const logger = require('morgan');
+//ecryption for passwords
 const bcrypt = require('bcryptjs');
-const expressSession = require('express-session');
+//create and store session data
+const session = require('express-session');
+//compresses response bodies
 const compression = require('compression');
+//secruity for HTTP respnse headers
 const helmet = require('helmet');
+//manage CORS
 const cors = require('cors');
+//handle authentification
 const passport = require('passport');
-var flash = require('connect-flash');
-var localStrategy = require('passport-local').Strategy;
+//autheticates users with username (email) and password
+const localStrategy = require('passport-local').Strategy;
+//show flash messages
+const flash = require('connect-flash');
+//parses incoming request bodies
 const bodyParser = require('body-parser');
+//parses cookies
 const cookieParser = require('cookie-parser');
+//handles file uploads
+const multer = require('multer');
+//creates tokens to validate users
+const jwt = require('jsonwebtoken');
+
+
+
+//configures enviroment variables.
 dotenv.config();
-require('./auth/auth');
+const jwtKey = process.env.JWT_SECRET_WORD;
+const cookieKey = process.env.COOKIES_SECRET_WORD;
+
+
+//creates an new instance of express
+const app = express();
+
 //connect to routers
 const indexRouter = require('./routes/index');
 const databaseRouter = require('./routes/database');
 const usersRouter = require('./routes/users');
+const secureRoute = require('./routes/secure_routes');
 
 
-const app = express();
-app.use(cookieParser());
+
+
+app.use(cookieParser(cookieKey));
+app.use(session({ cookie: { maxAge: 60000 },
+                  secret: cookieKey,
+                  resave: true,
+                  saveUninitialized: true}));
+
+
+//configures flash messages
+app.use(flash());
+app.use((req, res, next) => {
+  res.locals.flashMessages = req.flash();
+  next();
+});
+
+//connect middleware to app
 app.use(helmet());
-app.use(require('./routes'));
-
 app.use(passport.initialize());
 app.use(passport.session());
-const Users = require('./models/users')
+app.use(cors());
+app.use(logger('dev'));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(compression());
+app.use(bodyParser.urlencoded({ extended : true }));
+app.use(bodyParser.json())
 
-const jwtKey = process.env.JWT_SECRET_WORD;
+//connect routes to app
+app.use('/', indexRouter);
+app.use('/users', usersRouter);
+app.use('/database', databaseRouter);
+//secure routes require a password and return data specific to the user.
+app.use('/secure', passport.authenticate('jwt', { session : false, failureRedirect : '/users/login' }), secureRoute );
 
-
-
+//require helper functions for user validation
+require('./auth/auth');
 
 
 //mongoose connection
@@ -42,39 +98,29 @@ const mongoDB = process.env.MONGODB_URI;
 mongoose.connect(mongoDB, {useNewUrlParser:true });
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'MongoDB connection error:'));
-mongoose.promosise = global.Promise;
+mongoose.promise = global.Promise;
 
-// view engine setup
+// ejs view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.engine('html', require('ejs').renderFile);
 app.set('view engine', 'html');
 
-app.use(cors());
-app.use(flash());
-app.use(logger('dev'));
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
-app.use(compression());
-app.use(express.static(path.join(__dirname, 'public')));
-app.use('/', indexRouter);
-app.use('/users', usersRouter);
-app.use('/database', databaseRouter);
-const secureRoute = require('./routes/secure_routes');
-app.use('/secure', passport.authenticate('jwt', { session : false, failureRedirect : '/users/login' }), secureRoute );
-app.use(bodyParser.urlencoded({ extended : false }));
-const jwt = require('jsonwebtoken');
+
+
+
+
+
+
+
+
+
+
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
-
-
-
-
-
-
-
 
 
 // error handler
@@ -88,5 +134,7 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render('error', {user:user});
 });
+
+
 
 module.exports = app;
