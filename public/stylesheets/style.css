@@ -1,10 +1,10 @@
-html {background-color: black
+html {background-color: white
 }
 
 body {
   padding: 20px;
   font: 14px "Times New Roman", Times, serif;
-  color: white;
+  color: #black;
 }
 
 a {
@@ -19,15 +19,16 @@ a {
   color : #808080;
 }
 .metadataButton {
-  background-color: gray;
+  background-color: black ;
   border: none;
-  color: white;
-  padding: 1px 1px;
+  color: #F4F0E2;
+  padding: 5px;
   text-align: center;
   text-decoration: none;
   display: inline-block;
   font-size: 12px;
-  margin: 3px 3px;
+  margin: 2px;
+  border-radius: 5px;
   cursor: pointer;
   font: 14px "Times New Roman", Times, serif;
 }
@@ -36,14 +37,14 @@ a {
 
 /*background color for topnav*/
 .topnav {
-  background-color: #333;
+  background-color: black;
   overflow: hidden;
 }
 
 /*style links inside navbar*/
 .topnav a {
   float: left;
-  color: #EAE7DC;
+  color: #F4F0E2;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -53,13 +54,13 @@ a {
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #8E8D8A;
+  background-color: #black;
   color: black;
 }
 
 /* Add a color to the active/current link */
 .topnav a.active {
-  background-color: #ffff00;
+  background-color: #C32C1F;
   color: white;
 }
 
@@ -88,48 +89,45 @@ a {
   margin: 20px;
   padding: 14px;
   width: 30px;
+  text-align: center;
   cursor: pointer;
   position: fixed;
   height: 20px;
   overflow: hidden;
   right: 0px;
+  border-radius: 10px;
+  color: black;
 }
 
 #sidebar_tabs_0 {
-  color: black;
-  background-color: gray;
+  background-color: #e80805;
   top: 8px;
 }
 
 #sidebar_tabs_1 {
-  background-color: white;
-  color: gray;
+  background-color: #f5a02a;
   top: 55px;
 }
 
 #sidebar_tabs_2 {
-  background-color: gray;
-  color: black;
+  background-color:	#e8e005;
   top: 103px;
 }
 
 #sidebar_tabs_3 {
-  background-color: white;
-  color: gray;
+  background-color: #05e83a;
   top: 150px;
 }
 
 #sidebar_tabs_4 {
-  background-color: gray;
-  color: black;
+  background-color: 	#0586e8;
   top: 197px;
 }
 
 .sidebar {
   margin: 20px;
   padding: 14px;
-  width: 200px;
-  background-color: #f1f1f1;
+  width: 300px;
   position: fixed;
   height: 100%;
   overflow: auto;
@@ -137,4 +135,29 @@ a {
   top: 8px;
   display: none;
   color: black;
+}
+
+#searchdiv{
+  background-color : #ffd7d6
+}
+#changediv{
+  background-color: #ffd499
+}
+#exportdiv{
+  background-color: #faf7b1
+}
+#deletediv{
+  background-color: #dbeb8a
+}
+#uploaddiv{
+  background-color : #aed6f5
+}
+
+
+.flash_error {
+  background-color: #fc8d95;
+  padding: 20px;
+  width: 200px;
+  border-radius: 10px;
+  margin: 10px 0px;
 }
