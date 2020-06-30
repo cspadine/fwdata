@@ -1,0 +1,111 @@
+<link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+<div id='searchdiv' class='sidebar'>
+  <h3>Search</h3>
+  <form action='/secure/search' method='post'>
+  <input type='text' name='text' placeholder='Search in text' style='width: 500px;'><br>
+  <input type='text' name='gloss' placeholder='Search in gloss' style='width: 500px;'><br>
+  <input type='text' name='trans' placeholder='Search in trans' style='width: 500px;'><br>
+  <input type='text' name='source' placeholder='Search in source' style='width: 500px;'><br>
+  <input type='text' name='ref' placeholder='Search in ref' style='width: 500px;'><br>
+  <input type='text' name='notes' placeholder='Search in notes' style='width: 500px;'><br>
+  <input type='text' name='context' placeholder='Search in context' style='width: 500px;'><br>
+  <input type='text' name='tags' placeholder='Search in tags' style='width: 500px;'><br>
+  <input type='text' name='judgment' placeholder='Search in judgment' style='width: 500px;'><br>
+  <input type='text' name='language' placeholder='Search in language' style='width: 500px;'><br>
+  <input type='submit' value='Submit'>
+  </form>
+</div>
+
+<div id='changediv' class='sidebar' >
+      <h3>Change Selected</h3>
+  <button onclick='checkAll()'>Select all</button>
+  <form action='/database/data/update' method='POST'>
+
+    <input type='text' placeholder='Judgment' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='judgment' id='judgment'/><br>
+    <input type='text' placeholder='Context' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='context' id='context'/><br>
+      <input type='text' placeholder='Text' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='text' id='text'/>
+
+    <div id='morph_space'></div>
+        <input type='hidden' name='morph' id='morph' value=''/><br>
+        <input type='hidden' name='gloss' id='gloss' value=''/><br>
+        <input type='text' placeholder='Translation' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='trans' id='trans' /><br>
+        <input type='text' placeholder='Notes' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='notes' id='notes' /><br>
+        <input type='text' placeholder='Tags' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='tags' id='tags' /><br>
+        <input type='text' placeholder='Source' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='source' id='source' /><br>
+        <input type='text' placeholder='Reference' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='ref' id='ref' /><br>
+        <input type='text' placeholder='Language' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='lang' id='lang' /><br>
+        <input type='hidden' id='data_change_ids' name='data_change_ids'>
+      <input type='submit' value='Submit'>
+  </form>
+
+</div>
+
+<div id='uploaddiv' class='sidebar'>
+  <h3>Upload JSON file</h3>
+  <form id='data_form' action='../secure/upload' method='post'>
+  <input type='file' id='data_file'>
+    <button type='button' id='uploadingButton' onclick='readFile()'>Show File Contents</button>
+  </form>
+  <div id='uploadButtonDiv'>
+  </div>
+  <div id='UploadBulkEditDiv'>
+  </div>
+  <h3>Upload a PDF</h3>
+  <form id='data_form_PDF' action='../secure/uploadPDF' enctype="multipart/form-data"  method='post'>
+  <input type='file' name='data_file_PDF' accept='.pdf'>
+  <input type='submit' id='uploadingButtonPDF' value='Upload PDF'>
+  </form>
+</div>
+
+<div id='exportdiv' class='sidebar'>
+  <h3>Export Selected</h3>
+  <button onclick='checkAll()'>Select all</button>
+  <form action='/secure/exportJSON' method='post'>
+    <input type='hidden' id='data_export_id' name='data_export_id'/>
+    <button type='submit'>export as JSON</button>
+  </form>
+</div>
+
+<div id='deletediv' class='sidebar'>
+  <h3>Delete Selected</h3>
+<button onclick='checkAll()'>Select all</button>
+  <form action='/database/data/delete/delete' method='post' id='datadeleteform'>
+    <input name='data_delete_id' id='data_delete_id' type='hidden'>
+    <input type='submit' value='Delete selected'>
+  </form>
+</div>
+
+<div id='sidebar_tabs_0' class='sidebar_tabs' onclick='hideMenu("searchdiv")'>search</div>
+<div class='sidebar_tabs' id='sidebar_tabs_1' onclick='hideMenu("changediv")'>edit</div>
+<div class='sidebar_tabs' id='sidebar_tabs_2' onclick='hideMenu("exportdiv")'>export</div>
+<div class='sidebar_tabs' id='sidebar_tabs_3' onclick='hideMenu("deletediv")'>delete</div>
+<div class='sidebar_tabs' id='sidebar_tabs_4' onclick='hideMenu("uploaddiv")'>upload</div>
+
+
+
+
+
+<script>
+  function hideMenu(element){
+      const sidebarTabs = document.getElementsByClassName('sidebar_tabs');
+      const sidebarElement = document.getElementById(element);
+      const sidebarElements = document.getElementsByClassName('sidebar');
+      for (let i = 0 ; i < sidebarElements.length ; i++){
+        if (sidebarElements[i] != sidebarElement){
+          sidebarElements[i].style.display = "none";
+        }
+      }
+    if (sidebarElement.style.display === "block"){
+      sidebarElement.style.display = "none";
+      for (let i = 0 ; i < sidebarTabs.length ; i++){
+        sidebarTabs[i].style.right ='0px';
+      }
+    } else {
+      sidebarElement.style.display = "block";
+      for (let i = 0 ; i < sidebarTabs.length ; i++){
+        sidebarTabs[i].style.right = '230px';
+      };
+    };
+  };
+</script>
