@@ -4,7 +4,7 @@ html {background-color: white
 body {
   padding: 20px;
   font: 14px "Times New Roman", Times, serif;
-  color: #black;
+  color: black;
 }
 
 a {
@@ -16,12 +16,12 @@ a {
 }
 
 .metadataItem{
-  color : #808080;
+  color : #525252;
 }
 .metadataButton {
-  background-color: black ;
+  background-color: gray ;
   border: none;
-  color: #F4F0E2;
+  color: white;
   padding: 5px;
   text-align: center;
   text-decoration: none;
@@ -44,7 +44,7 @@ a {
 /*style links inside navbar*/
 .topnav a {
   float: left;
-  color: #F4F0E2;
+  color: white;
   text-align: center;
   padding: 14px 16px;
   text-decoration: none;
@@ -54,7 +54,7 @@ a {
 
 /* Change the color of links on hover */
 .topnav a:hover {
-  background-color: #black;
+  background-color: gray;
   color: black;
 }
 
@@ -161,3 +161,9 @@ a {
   border-radius: 10px;
   margin: 10px 0px;
 }
+
+#footer{
+    bottom:0;
+    color: gray;
+    font-size: 10px;
+  }
