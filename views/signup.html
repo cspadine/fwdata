@@ -16,9 +16,17 @@
 
   <h1>Sign Up</h1>
 
-
+  <div class="flashes">
+    <% if (flashMessages) { %>
+      <% if (flashMessages.success) { %>
+        <div class="flash_success"><%= flashMessages.success %></div>
+      <% } else if (flashMessages.error) { %>
+        <div class="flash_error"><%= flashMessages.error %></div>
+      <% } %>
+    <% } %>
+  </div>
   <form action='' method='POST'>
-    <label for='username'>User name:</label><br>
+    <label for='username'>Email:</label><br>
     <input type='text' id='username' name='username' oninput='activateSubmit()'><br>
     <label for='password'>Password:</label><br>
     <input type='password' id='password' name='password' oninput='passwordMatch()'><br>
@@ -65,6 +73,8 @@ function activateSubmit(){
 
 
 
-
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
 </body>
 </html>
