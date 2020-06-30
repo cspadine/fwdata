@@ -10,6 +10,7 @@ const jwtKey = process.env.JWT_SECRET_WORD;
 
 router.get('/', function (req, res) {
     const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+
     res.render('index', { user : user });
 });
 
@@ -22,9 +23,9 @@ router.get('/signup', function(req, res) {
 
 
 //new sign up
-router.post('/signup', passport.authenticate('signup', { session : false , failureRedirect : '/users/signup' }) , async (req, res, next) => {
+router.post('/signup', passport.authenticate('signup', { session : false , failureRedirect : '/users/signup', failureFlash : true }) , async (req, res, next) => {
       const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    res.render('index', { user : user });
+    res.render('index', { user : user, message: req.flash('signup') });
 });
 
 
@@ -34,21 +35,16 @@ router.post('/signup', passport.authenticate('signup', { session : false , failu
 
 router.get('/login', function(req, res) {
           const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    res.render('login', { user : user });
+    res.render('login', { user : user,  });
 });
-
-//router.post('/login', passport.authenticate('local'), function(req, res) {
-//    res.redirect('/');
-//});
 
 
 
 router.post('/login', async (req, res, next) => {
-    const existingUsername = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-  passport.authenticate('login', async (err, user, info) => {     try {
+  passport.authenticate('login', { session : false }, async (err, user, info) => {     try {
       if(err || !user){
         const error = new Error('An Error occurred')
-        return next(error);
+        return res.redirect('login')
       }
       req.login(user, { session : false }, async (error) => {
         if( error ) return next(error)
@@ -80,9 +76,6 @@ router.get('/logout', function(req, res) {
     res.redirect('/')
 });
 
-router.get('/ping', function(req, res){
-    res.status(200).send("pong!");
-});
 
 
 
