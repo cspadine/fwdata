@@ -1,3 +1,4 @@
+const data_controller = require('../controllers/secureDataController');
 const validator = require('express-validator');
 const ObjectID = require('mongodb').ObjectID;
 const express = require('express');
@@ -94,30 +95,7 @@ router.get('/all', (req, res, next) => {
 	});
 });
 
-router.post('/search', (req, res, next) => {
-  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-  const searchList = getQueryList(req);
-  Data.find({$and:searchList}, function(err,q){
-       res.render('data_display',{data_list:q, user : user });
-   });
-});
-
-
-function getQueryList(req){
-  let searchList = [{'user':req.user.user._id},];
-  let paramsList = ['text','gloss','trans','notes','source','ref','tags'];
-  for (let j = 0; j < paramsList.length;j++){
-    const currentParam = paramsList[j];
-    const queryTermList = req.body[currentParam].split(' ');
-    for(let i = 0; i< queryTermList.length; i++){
-      const text_regex = new RegExp(queryTermList[i], 'i');
-      const textSearchObject = new Object();
-      textSearchObject[currentParam] = {$regex: text_regex};
-      searchList.push(textSearchObject);}}
-  return searchList;
-}
-
-
+router.post('/search', data_controller.search);
 
 
 router.post('/upload', (req, res, next) => {
@@ -298,6 +276,10 @@ router.post('/exportJSON', (req, res, next) => {
     writeToFile(fileName, objectToWrite).then(() => res.download(fileName));
   })
 });
+
+
+
+
 
 
 
