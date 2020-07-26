@@ -1,5 +1,9 @@
-//This takes the string entered in the text field, splits it into an array,
-//and calls autoPopulateGloss function to fill the morphSpace div.
+
+
+
+
+//This takes the value of the 'text' input field and splits it into
+//separate morphemes on the 'morph' line.
 function populateGloss(){
   let text = document.getElementById('text').value;
   let textArray = text.trim().split(' ');
@@ -9,27 +13,47 @@ morphSpace.innerHTML = content;
 }
 
 
-//This takes the array from populateGloss, calls makeRequest to retreieve the gloss
-//suggestions, and then returns a value to put in the morphSpace div.
-function autoPopulateGloss(array){
+//removes punctuation that does not typically indicate morpheme boundaries from words
+const cleanTextArray = function(array){
   let textArray = [];
   for (let i = 0 ; i < array.length  ; i++){
-    textArray.push(array[i].replace(/[\!\?\.\;\,\:]$|[\(\)\"]/g,''));
+    if (array[i].includes('<') && array[i].includes('>')){
+      const pattern = /<.*>/;
+      const matches = array[i].match(pattern);
+      const match = array[i].match(pattern);
+      const word = array[i].replace(match[0],'');
+      const infixedWord = match[0]+ word
+      textArray.push(infixedWord.replace(/\[|!|\]|\?|\.$|,|;|:|\*|{.*}|\(|\)/g,''))
+    } else {
+    textArray.push(array[i].replace(/\[|!|\]|\?|\.$|,|;|:|\*|{.*}|\(|\)/g,''));
+    }
   }
-  let morphSpaceContent = '<table><tr>';
-  let glossSpaceContent = '</tr><tr>'
-  let glossSuggestionContent = '</tr><tr>'
+  console.log(textArray)
+  return textArray;
+}
+
+
+function autoPopulateGloss(array){
+  let textArray = cleanTextArray(array);
+  let morphSpaceContent = `<table><tr><td style="width: 70px;"><label for="morph" class='input_label'>Morphemes:<span class="tooltiptext">Tooltip text</span></label></td>`;
+  let glossSpaceContent = `</tr><tr><td style="width: 70px;"><label for="gloss" class='input_label'>Gloss:<span class="tooltiptext">Tooltip text</span></label></td>`;
+  let glossSuggestionContent = `</tr><tr><td style="width: 70px;"><label for="suggestions" class='input_label'>Other glosses:<span class="tooltiptext">Tooltip text</span></label></td>`
   for (let i = 0; i < textArray.length;i++){
-    const splitTextArray = textArray[i].split(/[-~=\/]/);
+    let splitTextArray = textArray[i].split(/[-~=\/<>]/);
+    splitTextArray = splitTextArray.filter(word => word.length > 0);
       if (splitTextArray.length > 1){
-      morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
+      let sepArray = [...textArray[i].matchAll(/[-~=\/<>]/g)];
+      const textArrayEsc = textArray[i].replace('<','&lt;').replace('>','&gt;')
+      morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArrayEsc}</span></td>`;
       glossSpaceContent += `<td id='gloss_span_${i}_td'><table><tr>`
       glossSuggestionContent+= `<td id='gloss_suggestion_${i}_td'><table><tr>`
-      let sepArray = [...textArray[i].matchAll(/[-~=\/]/g)];
-      document.getElementById('demo').innerHTML = sepArray;
       for (let l = 0 ; l < (splitTextArray.length-1); l++) {
-        glossSpaceContent += `<td> <span class="input" id='gloss_span_${i}_${l}' role="textbox" contenteditable></span></td><td>${sepArray[l]}</td>`;
-        glossSuggestionContent += `<td colspan=2 > <div id='gloss_suggestion_${i}_${l}'><div></td>`;
+        if (sepArray[l] == '<'){
+          glossSpaceContent += `<td>${sepArray[l]}</td>`;
+          sepArray.splice(l,1)
+        }
+          glossSpaceContent += `<td> <span class="input" id='gloss_span_${i}_${l}' role="textbox" contenteditable></span></td><td>${sepArray[l]}</td>`;
+          glossSuggestionContent += `<td colspan=2 > <div id='gloss_suggestion_${i}_${l}'><div></td>`;
       }
       glossSpaceContent += `<td><span class="input" id='gloss_span_${i}_${splitTextArray.length-1}' role="textbox" contenteditable></span></td>`
       glossSpaceContent += `</tr></table></td>`
@@ -45,7 +69,7 @@ function autoPopulateGloss(array){
       }
 
       else {
-    morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
+    morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]} </span></td>`;
     glossSpaceContent += `<td id='gloss_span_${i}_td' ><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`;
     makeRequest(textArray[i])
     .then(res => formatGlossResults(res,i))
@@ -64,13 +88,82 @@ function autoPopulateGloss(array){
 
 
 
+
+
+
+
+//requests gloss suggestions from the server
+const makeRequest = function (url, method){
+  const lang = document.getElementById('lang').value;
+  const request = new XMLHttpRequest();
+  return new Promise(function (resolve, reject) {
+    request.onreadystatechange = function () {
+      if (request.readyState !== 4) return;
+      if (request.status >= 200 && request.status < 300){
+        resolve(request.response);
+      } else {
+
+        reject({
+          status: request.status,
+          statusText: request.statusText
+        });
+      }
+    }
+    request.open(method || 'GET', '/secure/lexicon/'+url+'/'+lang, true);
+    request.send();
+  })
+}
+
+
+//handles formatting for morphologically complex word
+function formatGlossComplex (gloss,x,k){
+  let resList = '';
+  for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
+    resList += `<input type='button' id='gloss_suggestion_${x}_${j}_${k}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addComplexGloss('${x}','${j}','${k}')"><br>`
+      if (j === 0 ){
+        document.getElementById(`gloss_span_${x}_${k}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+      }
+    }
+    return resList;
+}
+//on clicking a suggested gloss, the corresponding gloss cell autopopulates with the
+//selected value
+function addGloss(x,j){
+  const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}`).value;
+  document.getElementById(`gloss_span_${x}`).innerHTML = selectedGlossSuggestion;
+}
+
+
+function addComplexGloss(x,j,k){
+    const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}_${k}`).value;
+  document.getElementById(`gloss_span_${x}_${k}`).innerHTML = selectedGlossSuggestion;
+}
+
+
+//changes the gloss suggestion results from the server to an HTML readable format
+function formatGlossResults (gloss,x) {
+  let resList = '';
+    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
+    resList += `<input type='button' id='gloss_suggestion_${x}_${j}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addGloss('${x}','${j}')"><br>`;
+    if (j === 0 ){
+        document.getElementById(`gloss_span_${x}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+    }
+  }
+  return resList
+}
+
+
+
+
+
+
 //when the morph cell is changed, the gloss suggestions are updated to
 function morphChangeInput(x){
   let input = document.getElementById(`morph_span_${x}`).innerHTML
-  const splitTextArray = input.split(/[-~=\/]/);
+  const splitTextArray = input.split(/[-~=\/]/g);
   if (splitTextArray.length > 1 ){
     let sepArray = [...input.matchAll(/[-~=\/]/g)];
-    let glossSpaceContent = '<table><tr>';
+    let glossSpaceContent = `<table><tr>`;
     let glossSuggestionContent = '<table><tr>'
     for (let m = 0 ; m < splitTextArray.length-1; m++){
       glossSpaceContent += `<td> <span class="input" id='gloss_span_${x}_${m}' role="textbox" contenteditable></span></td><td>${sepArray[m]}</td>`;
@@ -91,9 +184,9 @@ function morphChangeInput(x){
       } else {}
    }
   } else {
-  const glossSpaceContent = `<table><tr><td> <span class="input" id='gloss_span_${x}' role="textbox" contenteditable>gloss</span></td></tr></table>`;
+  const glossSpaceContent = `<table><tr><td> <span class="input" id='gloss_span_${x}' role="textbox" contenteditable></span></td></tr></table>`;
   document.getElementById(`gloss_span_${x}_td`).innerHTML = glossSpaceContent;
-  const glossSuggestionContent = `<table><tr><td colspan=2 > <div id='glossSuggestion${x}'>suggestion<div></td></tr></table>`;
+  const glossSuggestionContent = `<table><tr><td colspan=2 > <div id='glossSuggestion${x}'><div></td></tr></table>`;
   document.getElementById(`gloss_suggestion_${x}_td`).innerHTML = glossSuggestionContent;
   makeRequest(input.trim())
   .then(res => formatGlossResults(res,x))
@@ -102,95 +195,35 @@ function morphChangeInput(x){
 
 
 
-//handles formatting for morphologically complex word
-function formatGlossComplex (gloss,x,k){
-  let resList = '';
-    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
-    resList += `<input type='button' id='gloss_suggestion_${x}_${j}_${k}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addComplexGloss('${x}','${j}','${k}')"><br>`
-      if (j === 0 ){
-        document.getElementById(`gloss_span_${x}_${k}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
-      }
-    }
-    return resList;
-}
 
 
 
-
-//changes the gloss suggestion results from the server to an HTML readable format
-function formatGlossResults (gloss,x) {
-  let resList = '';
-    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
-    resList += `<input type='button' id='gloss_suggestion_${x}_${j}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addGloss('${x}','${j}')"><br>`;
-    if (j === 0 ){
-        document.getElementById(`gloss_span_${x}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+const findLangs = function(){
+  const h3 = document.createElement('h3')
+  h3.innerHTML = "Recent languages:"
+  document.getElementById('langAutoPopulate').appendChild(h3);
+  const langList = language;
+  const langs = []
+  for (let i = 0; i < langList.length ; i++){
+    if (langList[i] != ''){
+        langs.push(langList[i])
     }
   }
-  return resList
-}
-
-//on clicking a suggested gloss, the corresponding gloss cell autopopulates with the
-//selected value
-function addGloss(x,j){
-  const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}`).value;
-  document.getElementById(`gloss_span_${x}`).innerHTML = selectedGlossSuggestion;
-}
-
-
-function addComplexGloss(x,j,k){
-    const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}_${k}`).value;
-  document.getElementById(`gloss_span_${x}_${k}`).innerHTML = selectedGlossSuggestion;
-}
-
-
-
-
-
-//upon submitting the new data, this prevents the default submission, reformats the
-//data, and then submits the reformatted version.
-document.getElementById("newDataForm").addEventListener("submit", function(event){
-  event.preventDefault()
-  const textLength = document.getElementById('text').value.split(' ').length;
-    let glossValue = '';
-    let morphValue = '';
-  for (let i = 0; i < textLength; i++){
-    if (document.getElementById(`gloss_span_${i}_td`).innerHTML.includes('<table')){
-      const morphItem = document.getElementById(`morph_span_${i}`).innerHTML;
-      const morphItemSubArray = morphItem.split(/[-~=\/]/);
-      const sepArray = [...morphItem.matchAll(/[-~=\/]/g)];
-      for (let j = 0 ; j < morphItemSubArray.length-1 ; j++){
-        glossValue += document.getElementById(`gloss_span_${i}_${j}`).innerHTML
-          glossValue += sepArray[j];
-      }
-      glossValue += document.getElementById(`gloss_span_${i}_${morphItemSubArray.length-1}`).innerHTML + ',';
-    }else{
-      glossValue += document.getElementById(`gloss_span_${i}`).innerHTML+',';
+  for (let i = 0; i < langs.length ;i++){
+    const langButton = document.createElement('input');
+    langButton.innerHTML = langs[i];
+    langButton.setAttribute("value",langs[i]);
+    langButton.setAttribute('type','button')
+    langButton.setAttribute("id",langs[i]);
+    langButton.setAttribute('onclick', 'setLang(this.value)');
+    document.getElementById('langAutoPopulate').appendChild(langButton);
+    if (i == 0){
+      document.getElementById('lang').value = langs[i]
     }
-    morphValue += document.getElementById(`morph_span_${i}`).innerHTML+',';
   }
-  document.getElementById('morph').setAttribute('value',morphValue);
-  document.getElementById('gloss').setAttribute('value',glossValue);
-  document.getElementById("newDataForm").submit()
-});
+}
 
-
-//requests gloss suggestions from the server
-const makeRequest = function (url, method){
-  const request = new XMLHttpRequest();
-  return new Promise(function (resolve, reject) {
-    request.onreadystatechange = function () {
-      if (request.readyState !== 4) return;
-      if (request.status >= 200 && request.status < 300){
-        resolve(request.response);
-      } else {
-
-        reject({
-          status: request.status,
-          statusText: request.statusText
-        });
-      }
-    }
-    request.open(method || 'GET', '../secure/lexicon/'+url, true);
-    request.send();
-  })
+const setLang = function(lang){
+  document.getElementById('lang').value = lang;
+  populateGloss();
 }

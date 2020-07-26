@@ -391,8 +391,13 @@ router.get('/test', function(req, res) {
 });
 
 
+router.get('/lexicon', data_controller.lexicon_get);
 
+router.post('/lexicon_search', data_controller.lexicon_search);
 
+router.get('/sources', data_controller.source_get);
+router.post('/sources', data_controller.source_post);
+router.post('/delete', data_controller.data_delete_post);
 
 
 module.exports = router;

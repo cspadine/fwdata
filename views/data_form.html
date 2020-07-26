@@ -2,9 +2,19 @@
 
 <html>
 <head>
+<% console.log('test') %>
+  <% const Lang = lang %>
+
+  <script>
+    const language = <%- JSON.stringify(Lang) %>
+  </script>
+
     <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+    <script type="text/javascript" src="../../javascripts/dataCreation.js"></script>
+
 </head>
-<body>
+<body onload='findLangs()'>
+
   <header>
     <%- include("./partials/topnav") %>
   </header>
@@ -12,224 +22,117 @@
 
 <h1> <%= title %> </h1>
 <form action='' method='post' id='newDataForm'>
-  <input type='text' placeholder='Judgment' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='judgment' id='judgment'/><br>
-  <input type='text' placeholder='Context' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='context' id='context'/><br>
-    <input type='text' placeholder='Text' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='text' id='text' oninput='populateGloss()'/>
+      <label for="text" class='input_label'>Text:
+        <span class="tooltiptext">
+          Indicate coreference with curly brackets:<br>
+          <ul>
+          <li><i>She{i} saw her{j/*i}</i><br>
+          </ul>
+          Delineate an infix with angled bracket:<br>
+          <ul>
+          <li><i>abso&lt;fucking&gt;lutely</i><br>
+          </ul>
+        </span></label>
+      <input type='text' placeholder='Text' style="width: 800px;" name='text' id='text' oninput='populateGloss()'/>
   <div id='morph_space'></div>
+      <label for="trans" class='input_label'>Translation:
+        <span class="tooltiptext">
+          Free translation<br>
+          Indicate coreference with curly brackets:<br>
+          <ul>
+          <li><i>She{i} saw her{j/*i}</i><br>
+          </ul>
+        </span></label>
+      <input type='text' placeholder='Translation'  style="width: 800px;" name='trans' id='trans' /><br>
+      <label for="judgment" class='input_label'>Judgment:
+        <span class="tooltiptext">
+          Grammaticality judgements<br>
+          *: ungrammatical<br>
+          ?: questionable<br>
+          ??: very questionable<br>
+          %: acceptable in some dialects<br>
+          #: contextually anomolous<br>
+        </span></label>
+      <input type='text' placeholder='Judgment' style="width: 800px;" name='judgment' id='judgment'/><br>
+      <label for="context" class='input_label'>Context:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Context' style="width: 800px;" name='context' id='context'/><br>
+      <label for="notes" class='input_label'>Notes:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Notes' style="width: 800px;" name='notes' id='notes' /><br>
+      <label for="tags" class='input_label'>Tags:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Tags' style="width: 800px;" name='tags' id='tags' /><br>
+      <label for="source" class='input_label'>Source:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Source' style="width: 800px;" name='source' id='source' /><br>
+      <label for="ref" class='input_label'>Reference:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Reference' style="width: 800px;" name='ref' id='ref' /><br>
+      <label for="lang" class='input_label'>Language:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='Language' style="width: 800px;" name='lang' id='lang' /><br>
+      <div id='langAutoPopulate'></div>
       <input type='hidden' name='morph' id='morph' value=''/><br>
       <input type='hidden' name='gloss' id='gloss' value=''/><br>
-      <input type='text' placeholder='Translation' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='trans' id='trans' /><br>
-      <input type='text' placeholder='Notes' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='notes' id='notes' /><br>
-      <input type='text' placeholder='Tags' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='tags' id='tags' /><br>
-      <input type='text' placeholder='Source' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='source' id='source' /><br>
-      <input type='text' placeholder='Reference' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='ref' id='ref' /><br>
-      <input type='text' placeholder='Language' onkeypress="this.style.width = ((this.value.length + 1) * 8) + 'px'" name='lang' id='lang' /><br>
     <input type='submit' value='Submit'>
 </form>
 
 
+
+
+
+
 <script>
-//This takes the string entered in the text field, splits it into an array,
-//and calls autoPopulateGloss function to fill the morphSpace div.
-function populateGloss(){
-  let text = document.getElementById('text').value;
-  let textArray = text.trim().split(' ');
-  const morphSpace = document.getElementById('morph_space');
-  const content = autoPopulateGloss(textArray);
-morphSpace.innerHTML = content;
-}
 
 
-//This takes the array from populateGloss, calls makeRequest to retreieve the gloss
-//suggestions, and then returns a value to put in the morphSpace div.
-function autoPopulateGloss(array){
-  let textArray = [];
-  for (let i = 0 ; i < array.length  ; i++){
-    textArray.push(array[i].replace(/[\!\?\.\;\,\:]$|[\(\)\"]/g,''));
-  }
-  let morphSpaceContent = '<table><tr>';
-  let glossSpaceContent = '</tr><tr>'
-  let glossSuggestionContent = '</tr><tr>'
-  for (let i = 0; i < textArray.length;i++){
-    const splitTextArray = textArray[i].split(/[-~=\/]/);
-      if (splitTextArray.length > 1){
-      morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
-      glossSpaceContent += `<td id='gloss_span_${i}_td'><table><tr>`
-      glossSuggestionContent+= `<td id='gloss_suggestion_${i}_td'><table><tr>`
-      let sepArray = [...textArray[i].matchAll(/[-~=\/]/g)];
-      document.getElementById('demo').innerHTML = sepArray;
-      for (let l = 0 ; l < (splitTextArray.length-1); l++) {
-        glossSpaceContent += `<td> <span class="input" id='gloss_span_${i}_${l}' role="textbox" contenteditable></span></td><td>${sepArray[l]}</td>`;
-        glossSuggestionContent += `<td colspan=2 > <div id='gloss_suggestion_${i}_${l}'><div></td>`;
-      }
-      glossSpaceContent += `<td><span class="input" id='gloss_span_${i}_${splitTextArray.length-1}' role="textbox" contenteditable></span></td>`
-      glossSpaceContent += `</tr></table></td>`
-      glossSuggestionContent += `<td><div id='gloss_suggestion_${i}_${splitTextArray.length-1}'></div></td>`
-      glossSuggestionContent += `</tr></table></td>`
-        for (let j = 0 ; j < splitTextArray.length ; j++){
-          if(splitTextArray[j].trim()){
-            makeRequest(splitTextArray[j])
-            .then(res => formatGlossComplex(res,i,j))
-            .then(resList => {document.getElementById(`gloss_suggestion_${i}_${j}`).innerHTML = `${resList}`} )
-          }
+  //upon submitting the new data, this prevents the default submission, reformats the
+  //data, and then submits the reformatted version.
+  document.getElementById("newDataForm").addEventListener("submit", function(event){
+    document.getElementById('comments').innerHTML += "submit event prevented<br>"
+    event.preventDefault()
+    let text = document.getElementById('text').value.trim();
+    document.getElementById('comments').innerHTML += 'text element: ' + text + "<br>"
+    text = text.replace('<','&lt;').replace('>','&gt;')
+    document.getElementById('comments').innerHTML += 'text element, char replcement: ' + text + "<br>"
+    const textLength = text.split(' ').length;
+    document.getElementById('comments').innerHTML += 'Text length'+ textLength + "<br>"
+    document.getElementById('comments').innerHTML += '0:' + text.split(' ')[0]+ "<br>"
+    document.getElementById('comments').innerHTML += '2:' +text.split(' ')[1]+ "<br>"
+    document.getElementById('comments').innerHTML += '3:' +text.split(' ')[2]+ "<br>"
+    document.getElementById('comments').innerHTML += '4:' +text.split(' ')[3]+ "<br>"
+    document.getElementById('comments').innerHTML += '5:' +text.split(' ')[4] + "<br>"
+    document.getElementById('comments').innerHTML += '6:' +text.split(' ')[5] + "<br>"
+
+      let glossValue = '';
+      let morphValue = '';
+
+    for (let i = 0; i < textLength; i++){
+            document.getElementById('comments').innerHTML += 'formatting element ' + i + "<br>"
+      if (document.getElementById(`gloss_span_${i}_td`).innerHTML.includes('<table')){
+              document.getElementById('comments').innerHTML += 'element is morphologically complex ' + "<br>"
+        const morphItem = document.getElementById(`morph_span_${i}`).innerHTML;
+            document.getElementById('comments').innerHTML += 'corresponding morph element: ' + morphItem + "<br>"
+        const morphItemSubArray = morphItem.replace(/&lt;/,'').split(/[-~=\/]|&gt;/);
+                document.getElementById('comments').innerHTML += 'split morph item: ' + morphItemSubArray + "<br>"
+        const sepArray = [...morphItem.matchAll(/[-~=\/]|&gt;/g)];
+                document.getElementById('comments').innerHTML += 'morph item seperators: ' + sepArray + "<br>"
+        for (let j = 0 ; j < morphItemSubArray.length-1 ; j++){
+          glossValue += document.getElementById(`gloss_span_${i}_${j}`).innerHTML
+          document.getElementById('comments').innerHTML += 'gloss value: ' + glossValue + "<br>"
+            glossValue += sepArray[j];
+          document.getElementById('comments').innerHTML += 'gloss value: ' + glossValue + "<br>"
         }
+        glossValue += document.getElementById(`gloss_span_${i}_${morphItemSubArray.length-1}`).innerHTML + ',';
+        document.getElementById('comments').innerHTML += 'gloss value: ' + glossValue + "<br>"
+      } else{
+                  document.getElementById('comments').innerHTML += 'element is morphologically simplex' +"<br>"
+        glossValue += document.getElementById(`gloss_span_${i}`).innerHTML+',';
+        document.getElementById('comments').innerHTML += 'gloss value: ' + glossValue + "<br>"
       }
+      morphValue += document.getElementById(`morph_span_${i}`).innerHTML.replace('&lt;','').replace('&gt;','>')+',';
 
-      else {
-    morphSpaceContent += `<td><span class="input" id='morph_span_${i}' role="textbox" oninput='morphChangeInput(${i})' contenteditable> ${textArray[i]}</span></td>`;
-    glossSpaceContent += `<td id='gloss_span_${i}_td' ><span class="input" id='gloss_span_${i}' role="textbox" contenteditable></span></td>`;
-    makeRequest(textArray[i])
-    .then(res => formatGlossResults(res,i))
-    .then(resList => {document.getElementById(`glossSuggestion${i}`).innerHTML = resList});
-    glossSuggestionContent += `<td id='gloss_suggestion_${i}_td' ><p id='glossSuggestion${i}'></p></td>`
+  document.getElementById('comments').innerHTML += 'morph value: ' + morphValue + "<br>"
     }
-  }
-  morphSpaceContent += glossSpaceContent;
-  morphSpaceContent += glossSuggestionContent;
-  morphSpaceContent += '</tr></table>';
-  return morphSpaceContent
-}
-
-
-
-
-
-
-//when the morph cell is changed, the gloss suggestions are updated to
-function morphChangeInput(x){
-  let input = document.getElementById(`morph_span_${x}`).innerHTML
-  const splitTextArray = input.split(/[-~=\/]/);
-  if (splitTextArray.length > 1 ){
-    let sepArray = [...input.matchAll(/[-~=\/]/g)];
-    let glossSpaceContent = '<table><tr>';
-    let glossSuggestionContent = '<table><tr>'
-    for (let m = 0 ; m < splitTextArray.length-1; m++){
-      glossSpaceContent += `<td> <span class="input" id='gloss_span_${x}_${m}' role="textbox" contenteditable></span></td><td>${sepArray[m]}</td>`;
-      glossSuggestionContent += `<td colspan=2 > <div id='gloss_suggestion_${x}_${m}'><div></td>`;
-    }
-    glossSpaceContent += `<td><span class="input" id='gloss_span_${x}_${splitTextArray.length-1}' role="textbox" contenteditable></span></td>`
-    glossSpaceContent += `</tr></table></td>`
-    glossSuggestionContent += `<td><div id='gloss_suggestion_${x}_${splitTextArray.length-1}'></div>`
-    glossSuggestionContent += `</tr></table>`
-    document.getElementById(`gloss_span_${x}_td`).innerHTML = glossSpaceContent;
-    document.getElementById(`gloss_suggestion_${x}_td`).innerHTML = glossSuggestionContent;
-
-    for (let j = 0 ; j < splitTextArray.length ; j++){
-      if(splitTextArray[j].trim()){
-        makeRequest(splitTextArray[j].trim())
-        .then(res => formatGlossComplex(res,x,j))
-        .then(resList => {document.getElementById(`gloss_suggestion_${x}_${j}`).innerHTML = resList} )
-      } else {}
-   }
-  } else {
-  const glossSpaceContent = `<table><tr><td> <span class="input" id='gloss_span_${x}' role="textbox" contenteditable>gloss</span></td></tr></table>`;
-  document.getElementById(`gloss_span_${x}_td`).innerHTML = glossSpaceContent;
-  const glossSuggestionContent = `<table><tr><td colspan=2 > <div id='glossSuggestion${x}'>suggestion<div></td></tr></table>`;
-  document.getElementById(`gloss_suggestion_${x}_td`).innerHTML = glossSuggestionContent;
-  makeRequest(input.trim())
-  .then(res => formatGlossResults(res,x))
-  .then(resList => {document.getElementById(`glossSuggestion${x}`).innerHTML = resList});
-}}
-
-
-
-//handles formatting for morphologically complex word
-function formatGlossComplex (gloss,x,k){
-  let resList = '';
-    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
-    resList += `<input type='button' id='gloss_suggestion_${x}_${j}_${k}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addComplexGloss('${x}','${j}','${k}')"><br>`
-      if (j === 0 ){
-        document.getElementById(`gloss_span_${x}_${k}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
-      }
-    }
-    return resList;
-}
-
-
-
-
-//changes the gloss suggestion results from the server to an HTML readable format
-function formatGlossResults (gloss,x) {
-  let resList = '';
-    for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
-    resList += `<input type='button' id='gloss_suggestion_${x}_${j}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addGloss('${x}','${j}')"><br>`;
-    if (j === 0 ){
-        document.getElementById(`gloss_span_${x}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
-    }
-  }
-  return resList
-}
-
-//on clicking a suggested gloss, the corresponding gloss cell autopopulates with the
-//selected value
-function addGloss(x,j){
-  const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}`).value;
-  document.getElementById(`gloss_span_${x}`).innerHTML = selectedGlossSuggestion;
-}
-
-
-function addComplexGloss(x,j,k){
-    const selectedGlossSuggestion = document.getElementById(`gloss_suggestion_${x}_${j}_${k}`).value;
-  document.getElementById(`gloss_span_${x}_${k}`).innerHTML = selectedGlossSuggestion;
-}
-
-
-
-
-
-//upon submitting the new data, this prevents the default submission, reformats the
-//data, and then submits the reformatted version.
-document.getElementById("newDataForm").addEventListener("submit", function(event){
-  event.preventDefault()
-  const textLength = document.getElementById('text').value.split(' ').length;
-    let glossValue = '';
-    let morphValue = '';
-  for (let i = 0; i < textLength; i++){
-    if (document.getElementById(`gloss_span_${i}_td`).innerHTML.includes('<table')){
-      const morphItem = document.getElementById(`morph_span_${i}`).innerHTML;
-      const morphItemSubArray = morphItem.split(/[-~=\/]/);
-      const sepArray = [...morphItem.matchAll(/[-~=\/]/g)];
-      for (let j = 0 ; j < morphItemSubArray.length-1 ; j++){
-        glossValue += document.getElementById(`gloss_span_${i}_${j}`).innerHTML
-          glossValue += sepArray[j];
-      }
-      glossValue += document.getElementById(`gloss_span_${i}_${morphItemSubArray.length-1}`).innerHTML + ',';
-    }else{
-      glossValue += document.getElementById(`gloss_span_${i}`).innerHTML+',';
-    }
-    morphValue += document.getElementById(`morph_span_${i}`).innerHTML+',';
-  }
-  document.getElementById('morph').setAttribute('value',morphValue);
-  document.getElementById('gloss').setAttribute('value',glossValue);
-  document.getElementById("newDataForm").submit()
-});
-
-
-//requests gloss suggestions from the server
-const makeRequest = function (url, method){
-  const request = new XMLHttpRequest();
-  return new Promise(function (resolve, reject) {
-    request.onreadystatechange = function () {
-      if (request.readyState !== 4) return;
-      if (request.status >= 200 && request.status < 300){
-        resolve(request.response);
-      } else {
-
-        reject({
-          status: request.status,
-          statusText: request.statusText
-        });
-      }
-    }
-    request.open(method || 'GET', '../secure/lexicon/'+url, true);
-    request.send();
-  })
-}
-
+    document.getElementById('morph').setAttribute('value',morphValue);
+    document.getElementById('gloss').setAttribute('value',glossValue);
+   document.getElementById("newDataForm").submit()
+  });
 </script>
-
-
-
 
 
 <p>+++++++++++++++++++++++++++</p>
@@ -259,13 +162,65 @@ const makeRequest = function (url, method){
       </td>
     <% } %>
   </tr>
+
   <tr>
     <td colspan=100>
-      <%= data_list['trans']  %>
+      "<%= data_list['trans']  %>"
+    </td>
+  </tr>
+
+  <% if (data_list['context']) { %>
+    <tr>
+      <td colspan=100>
+        <i><%= data_list['context']  %></i>
+      </td>
+    </tr>
+  <% } %>
+
+  <% if (data_list['notes']) { %>
+    <tr>
+      <td colspan=100>
+        <%= data_list['notes']  %>
+      </td>
+    </tr>
+  <% } %>
+
+  <% if (data_list['tags']) { %>
+    <tr>
+      <td colspan=100>
+        <%= data_list['tags']  %>
+      </td>
+    </tr>
+  <% } %>
+
+  <% if (data_list['source']) { %>
+    <tr>
+      <td colspan=100>
+        <%= data_list['source']  %>
+      </td>
+    </tr>
+  <% } %>
+
+  <% if (data_list['ref']) { %>
+    <tr>
+      <td colspan=100>
+        <%= data_list['ref']  %>
+      </td>
+    </tr>
+  <% } %>
+
+  <tr>
+    <td colspan=100>
+      <%= data_list['lang']  %>
     </td>
   </tr>
 </table>
 <%}%>
 
+
+<div id='comments'></div>
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
 </body>
 </html>
