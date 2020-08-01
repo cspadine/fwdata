@@ -16,6 +16,7 @@ const SecureDataSchema = new Schema(
     tags: {type: Array},
     lang: {type: String},
     user: {type: String, required: true},
+    morpheme_ids: {type: Array},
 });
 
 //Virtual for text as array
