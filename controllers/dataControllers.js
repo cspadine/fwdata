@@ -1,9 +1,10 @@
 const validator = require('express-validator');
 const ObjectID = require('mongodb').ObjectID;
 
-const Data = require('../models/data');
-const Lang = require('../models/languages');
-const Lex = require('../models/lexicon');
+
+const Data = require('../models/dataSecure');
+const Lex = require('../models/lexiconSecure')
+
 const User = require('../models/users');
 
 const helpers = require('../helper/lexiconFormatting.js');
@@ -23,30 +24,16 @@ const jwtKey = process.env.JWT_SECRET_WORD;
 
 
 
-
-exports.index = function(req, res) {
+//Display home page, with the current number of sentences and lexical items
+exports.index = function(req, res, next) {
     const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    async.parallel({
-	data_count: function(callback) {
-            Data.countDocuments({}, callback);
-            }
-        },
-        function(err, results) {
-            res.render('index', {title:'FWdata', error:err, data: results, user: user});
-    });
+     Data.count({})
+     .then((count) => {
+       const dataCount = count
+       Lex.count({}).then(lexCount => res.render('index', {title:'FWdata', data: dataCount, user: user, lex: lexCount}))
+   });
 };
 
-
-
-// Display list of all data.
-//exports.data_list = function(req, res, next) {
-//    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-//    Data.find({})
-//    .exec(function (err, list_data) {
-//        if (err) { return next(err); }
-//        res.render('data_list', { title: 'Data List', data_list: list_data, user: user });
-//	});
-//
 
 
 
@@ -168,6 +155,7 @@ exports.data_upload_post =
 // Display data create form on GET.
 exports.data_create_get = function(req, res, next) {
     const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+
     res.render('data_form', { title: 'Create Data', data_list:'', message : '', user: user});
 };
 
@@ -227,11 +215,6 @@ exports.data_create_post = [
 
 
 
-exports.lexicon_add = function (req, res, next) {
-  const morph = ['beep','bloop','bip'];
-  const gloss = ['beep','bloop','bip'];
-  addLexEntry(morph,gloss);
-}
 
 
 

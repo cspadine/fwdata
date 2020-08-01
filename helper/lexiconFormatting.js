@@ -8,8 +8,8 @@ module.exports.wordsToMorphs = function (morph,gloss){
     let morphEndArray = [];
     let glossEndArray = [];
     for (let i = 0 ; i < morph.length; i++){
-      const morphSubArray = morph[i].split(/[-~+()\/\[\]]/);
-      const glossSubArray = gloss[i].split(/[-~+()\/\[\]]/);
+      const morphSubArray = morph[i].split(/[-~+()\/\[\]$]/);
+      const glossSubArray = gloss[i].split(/[-~+()\/\[\]$]/);
       if (morphSubArray.length == glossSubArray.length) {
         for (let j = 0 ; j < morphSubArray.length ; j++){
           morphEndArray.push(morphSubArray[j])

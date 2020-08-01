@@ -87,7 +87,7 @@
     event.preventDefault()
     let text = document.getElementById('text').value.trim();
     document.getElementById('comments').innerHTML += 'text element: ' + text + "<br>"
-    text = text.replace('<','&lt;').replace('>','&gt;')
+    text = text.replace('&lt;','^^').replace('&gt;','^^^')
     document.getElementById('comments').innerHTML += 'text element, char replcement: ' + text + "<br>"
     const textLength = text.split(' ').length;
     document.getElementById('comments').innerHTML += 'Text length'+ textLength + "<br>"
@@ -105,11 +105,12 @@
             document.getElementById('comments').innerHTML += 'formatting element ' + i + "<br>"
       if (document.getElementById(`gloss_span_${i}_td`).innerHTML.includes('<table')){
               document.getElementById('comments').innerHTML += 'element is morphologically complex ' + "<br>"
-        const morphItem = document.getElementById(`morph_span_${i}`).innerHTML;
+        const morphItem = document.getElementById(`morph_span_${i}`).innerHTML.replace(/</,'').replace(/&lt;/,'').replace(/&gt;/,'$').replace(/>/,'$');
+        document.getElementById(`morph_span_${i}`).innerHTML = morphItem;
             document.getElementById('comments').innerHTML += 'corresponding morph element: ' + morphItem + "<br>"
-        const morphItemSubArray = morphItem.replace(/&lt;/,'').split(/[-~=\/]|&gt;/);
+        const morphItemSubArray = morphItem.split(/[-~=\/$]/);
                 document.getElementById('comments').innerHTML += 'split morph item: ' + morphItemSubArray + "<br>"
-        const sepArray = [...morphItem.matchAll(/[-~=\/]|&gt;/g)];
+        const sepArray = [...morphItem.matchAll(/[-~=\/$]|&gt;/g)];
                 document.getElementById('comments').innerHTML += 'morph item seperators: ' + sepArray + "<br>"
         for (let j = 0 ; j < morphItemSubArray.length-1 ; j++){
           glossValue += document.getElementById(`gloss_span_${i}_${j}`).innerHTML
@@ -124,7 +125,7 @@
         glossValue += document.getElementById(`gloss_span_${i}`).innerHTML+',';
         document.getElementById('comments').innerHTML += 'gloss value: ' + glossValue + "<br>"
       }
-      morphValue += document.getElementById(`morph_span_${i}`).innerHTML.replace('&lt;','').replace('&gt;','>')+',';
+      morphValue += document.getElementById(`morph_span_${i}`).innerHTML+',';
 
   document.getElementById('comments').innerHTML += 'morph value: ' + morphValue + "<br>"
     }
