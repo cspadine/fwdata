@@ -30,7 +30,7 @@ SecureDataSchema
 SecureDataSchema
 .virtual('url')
 .get(function () {
-    return '/database/data/' + this._id;
+    return '/secure/data/' + this._id;
 });
 
 //Export module
