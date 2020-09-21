@@ -1,6 +1,7 @@
 //connects to the mongoose model that contains the users' data
 const Data = require('../models/dataSecure');
 const Lex = require('../models/lexiconSecure')
+const Lang = require('../models/languages.js')
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
@@ -174,3 +175,19 @@ exports.data_delete_post = function(req, res) {
   }
  })
   }
+
+
+exports.languages_get = function(req,res){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' ); //user validation
+  //let langauge = 'req.params.lang';
+  console.log(req.params.lang);
+  let language = new RegExp(['(^| )',req.params.lang].join(''), "i");
+  console.log(language);
+  Lang.find({'lang':{$regex: language}}, function(err,q){
+        if (err) console.log(err);
+        console.log(q)
+       res.send(q);
+
+   });
+
+}
