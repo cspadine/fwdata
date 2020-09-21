@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-
 <html>
+<head>
+    <link rel="stylesheet" type="text/css" href="stylesheets/style.css" />
+</head>
 <body>
-
-<%= title %>
-<%= lex %>
-
-
-
+  <header>
+    <%- include("./partials/topnav") %>
+    <%- include("./partials/lex_sidebar") %>
+  </header>
+  <ol>
+    <% for (let i = 0; i < lexicon.length; i++) { %>
+        <% if (i > 0) { %>
+          <% if (lexicon[i]['lang'] != lexicon[i-1]['lang'] ){ %>
+                <p><%= lexicon[i]['lang'] %><p>
+          <% } %>
+        <% } else {%>
+          <p><b><%= lexicon[i]['lang'] %></b><p>
+        <% } %>
+        <li><p><%= lexicon[i]['morph'] %><br>
+        <i><%= lexicon[i]['gloss'] %></i></p>
+      <% } %>
+    </ol>
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
 </body>
 </html>

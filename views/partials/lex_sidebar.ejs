@@ -1,0 +1,37 @@
+<link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+  <div id='searchdiv' class='sidebar'>
+    <h3>Search</h3>
+    <form action='/secure/lexicon_search' method='post'>
+    <input type='text' name='morph' placeholder='Search for morpheme' style='width: 500px;'><br>
+    <input type='text' name='gloss' placeholder='Search for gloss' style='width: 500px;'><br>
+        <input type='text' name='lang' placeholder='Search within language' style='width: 500px;'><br>
+    <input type='submit' value='Submit'>
+    </form>
+  </div>
+
+<div id='sidebar_tabs_0' class='sidebar_tabs' onclick='hideMenu("searchdiv")'>search</div>
+
+<script>
+  function hideMenu(element){
+      const sidebarTabs = document.getElementsByClassName('sidebar_tabs');
+      const sidebarElement = document.getElementById(element);
+      const sidebarElements = document.getElementsByClassName('sidebar');
+      for (let i = 0 ; i < sidebarElements.length ; i++){
+        if (sidebarElements[i] != sidebarElement){
+          sidebarElements[i].style.display = "none";
+        }
+      }
+    if (sidebarElement.style.display === "block"){
+      sidebarElement.style.display = "none";
+      for (let i = 0 ; i < sidebarTabs.length ; i++){
+        sidebarTabs[i].style.right ='0px';
+      }
+    } else {
+      sidebarElement.style.display = "block";
+      for (let i = 0 ; i < sidebarTabs.length ; i++){
+        sidebarTabs[i].style.right = '230px';
+      };
+    };
+  };
+</script>

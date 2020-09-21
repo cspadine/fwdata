@@ -44,139 +44,7 @@ router.get('/create', (req, res, next) => {
           })
 });
 
-router.post('/create', (req, res, next) => {
-          const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-          const errors = validator.validationResult(req);
-          const cleanedMorph = morphCleaner(req.body.morph.split(','));
-          let data = new Data({
-                  text: req.body.text,
-                  source: req.body.source,
-                  ref: req.body.ref,
-                  judgment: req.body.judgment,
-                  context: req.body.context,
-                  gloss: req.body.gloss.split(','),
-                  morph: cleanedMorph,
-                  trans: req.body.trans,
-                  notes: req.body.notes,
-                  tags: req.body.tags.split(' '),
-                  user: req.user.user._id,
-                  lang: req.body.lang,
-                  });
-          addLexemes(data.morph, data.gloss, data.user, data.lang);
-      if (!errors.isEmpty()) {
-         res.send({data_list: data, errors: errors.array()});
-        return;
-          }
-                else {
-          Data.findOne({ 'text': data.text, 'context': data.context, 'lang': data.lang, 'user':data.user})
-              .exec( function(err, found_text ) {
-                  if (err) { return next(err); }
 
-                  if (found_text) {
-                     res.render('data_form', {title: 'Create Data', message : "This sentence is already in the database.", data_list: data, errors: errors.array(), user: user, 'lang': [data.lang]});
-                  }
-                  else {
-                      data.save(function (err) {
-                          if (err) {return next(err); }
-                          res.render('data_form', {title: 'Create Data', message: "", data_list: data, errors: errors.array(), user: user, 'lang': [data.lang]});
-                      });
-                  }
-              });
-    }
-
-});
-
-router.get('/all', (req, res, next) => {
-    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    Data.find({'user' : req.user.user._id})
-    .exec(function (err, list_data) {
-        if (err) { return next(err); }
-        res.render('data_display', { title: 'Data List', data_list: list_data, user : user });
-	});
-});
-
-router.post('/search', data_controller.search);
-
-
-router.post('/upload', (req, res, next) => {
-  let uploadedData = [];
-  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-  let finalMorphList = [];
-  let finalGlossList = [];
-  let finalLangList = [];
-  for(let i = 0; i< req.body.length; i++){
-    const text = 'text'+i;
-    const source = 'source'+i;
-    const ref = 'ref'+i;
-    const judgment = 'judgment'+i
-    const context = 'context' + i;
-    const gloss = 'gloss' + i;
-    const morph = 'morph' + i;
-    const trans = 'trans' + i;
-    const notes = 'notes' + i;
-    const tags = 'tags' + i;
-    const lang = 'lang' + i;
-    const cleanedMorph = morphCleaner(req.body[morph].split(','));
-    let data = new Data({
-            text: req.body[text],
-            source: req.body[source],
-            ref: req.body[ref],
-            judgment: req.body[judgment],
-            context: req.body[context],
-            morph: cleanedMorph,
-            gloss: req.body[gloss].split(','),
-            trans: req.body[trans],
-            notes: req.body[notes],
-            tags: req.body[tags].split(','),
-            lang: req.body[lang],
-            user: req.user.user._id,
-            });
-    uploadedData.push(data);
-    const wToM = wordsToMorphs(data.morph,data.gloss);
-    if (wToM){
-      const morphList = wToM[0];
-      const glossList = wToM[1];
-      for (let j = 0 ; j < morphList.length ; j++){
-          if (finalMorphList.includes(morphList[j]) ){
-            let alreadyIncludes = false;
-            for (let m = 0; m < finalMorphList.length; m++){
-              if (finalMorphList[m]===morphList[j] && finalGlossList[m] === glossList[j]){
-              alreadyIncludes = true;
-              }
-            }
-            if (alreadyIncludes === false){
-              finalMorphList.push(morphList[j])
-              finalGlossList.push(glossList[j])
-              finalLangList.push(data.lang)
-            }
-
-          } else {
-            finalMorphList.push(morphList[j])
-            finalGlossList.push(glossList[j])
-            finalLangList.push(data.lang)
-          }
-        }
-      }
-
-    data.save(function (err) {
-      if (err) {console.log(err)}
-      console.log("saved:" + data._id)
-    });
-  };
-  for (let k = 0; k < finalMorphList.length; k++){
-  checkForExisting(finalMorphList[k],finalGlossList[k],req.user.user._id, finalLangList[k]).then(output => {
-    if (output){
-
-      const lexeme = new Lex(output);
-      console.log(output)
-      lexeme.save();
-    }
-  }).catch((err)=>{
-console.log(err);
-})
-}
-res.render('data_display', {title: 'Sentences Uploaded', user: user, data_list: uploadedData})
-});
 
 
 // Handle data update on POST.
@@ -398,6 +266,110 @@ router.post('/lexicon_search', data_controller.lexicon_search);
 router.get('/sources', data_controller.source_get);
 router.post('/sources', data_controller.source_post);
 router.post('/delete', data_controller.data_delete_post);
+router.get('/languages/:lang', data_controller.languages_get);
+// GET request for one lexeme.
+router.get('/lexeme/:id', data_controller.lexeme_detail);
+
+
+
+
+
+router.post('/create',data_controller.create_post)
+
+
+
+router.get('/all', (req, res, next) => {
+    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+    Data.find({'user' : req.user.user._id})
+    .exec(function (err, list_data) {
+        if (err) { return next(err); }
+        res.render('data_display', { title: 'Data List', data_list: list_data, user : user });
+	});
+});
+
+router.post('/search', data_controller.search);
+
+
+router.post('/upload', (req, res, next) => {
+  let uploadedData = [];
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+  let finalMorphList = [];
+  let finalGlossList = [];
+  let finalLangList = [];
+  for(let i = 0; i< req.body.length; i++){
+    const text = 'text'+i;
+    const source = 'source'+i;
+    const ref = 'ref'+i;
+    const judgment = 'judgment'+i
+    const context = 'context' + i;
+    const gloss = 'gloss' + i;
+    const morph = 'morph' + i;
+    const trans = 'trans' + i;
+    const notes = 'notes' + i;
+    const tags = 'tags' + i;
+    const lang = 'lang' + i;
+    const cleanedMorph = morphCleaner(req.body[morph].split(','));
+    let data = new Data({
+            text: req.body[text],
+            source: req.body[source],
+            ref: req.body[ref],
+            judgment: req.body[judgment],
+            context: req.body[context],
+            morph: cleanedMorph,
+            gloss: req.body[gloss].split(','),
+            trans: req.body[trans],
+            notes: req.body[notes],
+            tags: req.body[tags].split(','),
+            lang: req.body[lang],
+            user: req.user.user._id,
+            });
+    uploadedData.push(data);
+    const wToM = wordsToMorphs(data.morph,data.gloss);
+    if (wToM){
+      const morphList = wToM[0];
+      const glossList = wToM[1];
+      for (let j = 0 ; j < morphList.length ; j++){
+          if (finalMorphList.includes(morphList[j]) ){
+            let alreadyIncludes = false;
+            for (let m = 0; m < finalMorphList.length; m++){
+              if (finalMorphList[m]===morphList[j] && finalGlossList[m] === glossList[j]){
+              alreadyIncludes = true;
+              }
+            }
+            if (alreadyIncludes === false){
+              finalMorphList.push(morphList[j])
+              finalGlossList.push(glossList[j])
+              finalLangList.push(data.lang)
+            }
+
+          } else {
+            finalMorphList.push(morphList[j])
+            finalGlossList.push(glossList[j])
+            finalLangList.push(data.lang)
+          }
+        }
+      }
+
+    data.save(function (err) {
+      if (err) {console.log(err)}
+      console.log("saved:" + data._id)
+    });
+  };
+  for (let k = 0; k < finalMorphList.length; k++){
+  checkForExisting(finalMorphList[k],finalGlossList[k],req.user.user._id, finalLangList[k]).then(output => {
+    if (output){
+
+      const lexeme = new Lex(output);
+      console.log(output)
+      lexeme.save();
+    }
+  }).catch((err)=>{
+console.log(err);
+})
+}
+res.render('data_display', {title: 'Sentences Uploaded', user: user, data_list: uploadedData})
+});
+
 
 
 module.exports = router;

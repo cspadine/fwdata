@@ -74,8 +74,12 @@
   <h3>Export Selected</h3>
   <button onclick='checkAll()'>Select all</button>
   <form action='/secure/exportJSON' method='post'>
-    <input type='hidden' id='data_export_id' name='data_export_id'/>
+    <input type='hidden' id='data_export_id_json' name='data_export_id'/>
     <button type='submit'>export as JSON</button>
+  </form>
+    <form action='/secure/exportText' method='post'>
+    <input type='hidden' id='data_export_id_plaintext' name='data_export_id_plaintext'/>
+    <button type='submit'>export as plain text</button>
   </form>
 </div>
 

@@ -1,11 +1,21 @@
 <!DOCTYPE html>
 <html>
 <body>
+  <header>
+    <%- include("./partials/topnav") %>
+    <%- include("./partials/sidebar") %>
+  </header>
+  <%- include("./partials/flash") %>
 
-<%= title %>
-<% for (let i = 0 ; i < lex.length ; i++){ %>
-<%= lex[i] %><br>
-<% } %>
+<script>
+</script>
 
+
+
+
+
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
 </body>
 </html>

@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+</head>
+<body>
+  <header>
+    <%- include("./partials/topnav") %>
+  </header>
+
+  <div>
+    <h3>Journal article</h3>
+    <form method='POST' action='/'><br>
+    <input type='text' placeholder='authors'><br>
+    <input type='text' placeholder='title'><br>
+    <input type='text' placeholder='journal'><br>
+    <input type='text' placeholder='volume'><br>
+    <input type='text' placeholder='year'><br>
+    <input type='text' placeholder='number'><br>
+    <input type='text' placeholder='pages'><br>
+    <input type='submit' value='submit'>
+    </form>
+  </div>
+
+
+
+  <footer>
+    <%- include("./partials/footer.ejs") %>
+  </footer>
+  </body>
+  </html>

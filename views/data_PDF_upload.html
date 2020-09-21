@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+
+    <link rel="stylesheet" type="text/css" href="../../stylesheets/style.css" />
+
+</head>
+<body>
+  <header>
+
+    <%- include("./partials/topnav") %>
+  </header>
+
+<div id='dataSpace'> </div>
+
+<script>
+  const data_list = <%- data_list %>;
+  document.getElementById('dataSpace').innerHTML = data_list;
+
+
+
+
+
+
+
+  function displayData(i,datalist,formText){
+    return  `<li class='uploadli' id='uploadItem${i}'onclick='selectUploadFunction(${i})'>
+
+      <input type='text' placeholder='No context' style='width: 500px;'  id='context${i}'
+      name='context${i}' value='${datalist[i]["context"] ?
+      datalist[i]["context"] : ''}'><br>
+
+      <input type='text' name='judgment${i}' id='judgment${i}'
+     style='width: 20px;' value='${datalist[i]["judgment"] ?
+      datalist[i]["judgment"] : ''}'>
+
+      <input type='text' name='text${i}' id='text${i}'
+      style='width: 475px;' value='${datalist[i]["text"] ?
+      datalist[i]["text"] : ''}'><br>
+
+      <input type='text'style='width: 500px;'
+      placeholder='No morph' id='morph${i}' name='morph${i}'
+      value='${datalist[i]["morph"] ? datalist[i]["morph"]
+      : datalist[i]["text"].split(' ')}'><br>
+
+      <input type='text'style='width: 500px;' placeholder='No gloss'
+      id='gloss${i}' name='gloss${i}' value='${datalist[i]["gloss"]
+      ? datalist[i]["gloss"] : ''}'><br>
+
+      <input type='text' style='width: 500px;' placeholder='No translation'
+      id='trans${i}' name='trans${i}' value="${datalist[i]["trans"] ? datalist
+      [i]["trans"].replace(/\"/g,"'") : ''}"><br>
+
+      <input type='text'  style='width: 500px;' placeholder='No notes'
+      id='notes${i}' name='notes${i}' value="${notes = datalist
+      [i]["notes"] ? datalist[i]["notes"].replace(/\"/g,"'") : ''}"><br>
+
+      <input type='text' style='width: 500px;' placeholder='No tags'
+      id='tags${i}' name='tags${i}' value='${datalist[i]["tags"]
+       ? datalist[i]["tags"] : ''}'><br>
+
+       <input type='text' style='width: 500px;' placeholder='No source'
+       id='source${i}' name='source${i}' value='${datalist["source"] ?
+       datalist["source"] : ''}'><br>
+
+       <input type='text' style='width: 500px;' placeholder='No ref'
+       id='ref${i}' name='ref${i}' value='${datalist[i]["ref"] ?
+       datalist[i]["ref"] : ''}'><br>
+
+       <input type='text'  style='width: 500px;' placeholder='No lang'
+       id='lang${i}' name='lang${i}' value='${datalist[i]["lang"]
+       ? datalist[i]["lang"] : ''}'><br><br>`
+  }
+
+    function readFile(datalist) {
+            const uploadNumber = datalist.length;
+            let formText = "<form id='uploadForm' action='/secure/upload' method='post'><ol>";
+            formText += `<input type='hidden' name='length' value='${datalist.length}'><p>${datalist.length} examples to add</p>`  ;
+          for (let i = 0; i < datalist.length; i++){
+
+
+          formText +=  displayData(i,datalist, formText)
+
+          }
+
+
+    //        document.getElementById('uploadButtonDiv').innerHTML = `<button onclick='uploadCheckAll()'>Select All</button>`
+              formText += "<li>test </ol></form>"
+            document.getElementById('dataSpace').innerHTML = formText;
+
+
+    //        document.getElementById('UploadBulkEditDiv').innerHTML =
+    //        `<input type='text' placeholder='Context' id='bulkEditContext'><br>
+    //        <input type='text' placeholder='Judgment' id='bulkEditJudgment'><br>
+    //        <input type='text' placeholder='Notes' id='bulkEditNotes'><br>
+    //        <input type='text' placeholder='Tags' id='bulkEditTags'><br>
+    //       <input type='text' placeholder='Source' id='bulkEditSource'><br>
+    //        <input type='text' placeholder='Reference' id='bulkEditReference'><br>
+    //        <input type='text' placeholder='Language' id='bulkEditLanguage'><br>
+    //        <button onclick='uploadEditSelected()'>Edit Selected</button>
+    //        <button onclick='uploadFormSubmit()'>Add to Database</button>
+    //        `
+
+
+  //    };
+    };
+
+
+
+
+readFile(data_list)
+
+
+</script>
+
+
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
+</body>
+</html>

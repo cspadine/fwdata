@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 const data_controller = require('../controllers/dataControllers');
-
+const Langs = require('../models/languages');
 
 router.get('/', data_controller.index);
 
@@ -46,10 +46,5 @@ router.get('/data', data_controller.data_list);
 
 router.post('/data/export', data_controller.data_export);
 
-router.get('/lexicon', data_controller.lexicon_list_get);
-router.post('/lexicon/dups', data_controller.lexicon_list_dups);
-router.get('/lexicon/:item', data_controller.lexicon_item);
-router.post('/lexicon/add', data_controller.lexicon_add);
-router.post('/lexicon/format', data_controller.lexicon_format);
-router.post('/lexicon/delete', data_controller.lexicon_delete);
+
 module.exports = router;

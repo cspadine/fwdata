@@ -10,8 +10,18 @@
 
 
 <h1 id='header1'> Home Page </h1>
+<div class="flashes">
+  <% if (flashMessages) { %>
+    <% if (flashMessages.success) { %>
+      <div class="flash success"><%= flashMessages.success %></div>
+    <% } else if (flashMessages.error) { %>
+      <div class="flash error"><%= flashMessages.error %></div>
+    <% } %>
+  <% } %>
+</div>
 
-<p> Number of sentences:  </p>
+<p> Number of sentences: <%= data %> </p>
+<p> Number of lexical items: <%= lex %> </p>
 
 <p> This is an prototype version of a NoSQL database and web interface for storing, searching, and exporting linguistic fieldwork data.
 The goal of this project is to create an extremely user-friendly system with a low bar to entry that allows lingusitic reaserchers to benefit from the utility and versatility of database management systems.  It is designed to address common issues wth data storage in fieldwork.
@@ -68,8 +78,12 @@ Currently, the available options for storing fieldwork data falls generally into
     <p> Expand support for non-standard characters and for including audio and video files.</p>
 </ul>
 
+<script>
 
+</script>
 
-
+<footer>
+  <%- include("./partials/footer.ejs") %>
+</footer>
 </body>
 </html>
