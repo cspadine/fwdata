@@ -84,7 +84,11 @@ module.exports.CFEloop = function(morphArray, glossArray, user, lang) {
                //key, then the lexeme is not yet in the database.
                  const lexeme = new Lex(output); //creates new Lex object
                  console.log(lexeme)
-                 lexeme.save(); //saves Lex object
+                 try{
+                   lexeme.save(); //saves Lex object
+                 } catch (err){
+                   console.log(err)
+                 }
                  morpheme_ids.push(lexeme._id);//adds newly created id to
                  //list of morpheme ids
                } else { //if the lexeme already exists

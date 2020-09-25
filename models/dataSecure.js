@@ -14,7 +14,7 @@ const SecureDataSchema = new Schema(
     trans: {type: String},
     notes: {type: String},
     tags: {type: Array},
-    lang: {type: String},
+    lang: {type: String, validate: /^\w\w\w$/},
     user: {type: String, required: true},
     morpheme_ids: {type: Array},
 });

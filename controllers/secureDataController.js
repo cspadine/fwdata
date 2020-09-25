@@ -112,6 +112,7 @@ exports.data_delete_post = function(req, res) {
            lang: req.body.lang,
            });
            console.log(data)
+
     addLexemes(data.morph, data.gloss, data.user, data.lang) //add lexemes to db
     .then((output) => data.morpheme_ids = output)//add lexeme ids to the Data object
     .then(()=> {
@@ -131,11 +132,30 @@ exports.data_delete_post = function(req, res) {
                }
                else {
                    data.save(function (err) {//save data and display result
-                       if (err) {return next(err); }
-                       res.render('data_form', {title: 'Create Data',
-                       message: "", data_list: data,
-                       errors: errors.array(), user: user,
-                       'lang': [data.lang]});
+                       if (err) {res.render(
+                         'data_form',
+                            {
+                              title: 'Create Data',
+                              message: "Data could not be saved. Some part of your \
+                              data is not in the correct format.",
+                              data_list: data,
+                              errors: errors.array(),
+                              user: user,
+                              'lang': [data.lang]
+                            }
+                       )
+                     } else {
+                          res.render(
+                            'data_form', {
+                              title: 'Create Data',
+                              message: "Saved!",
+                              data_list: data,
+                              errors: errors.array(),
+                              user: user,
+                              'lang': [data.lang]
+                            }
+                          );
+                     }
                    });
                }
            });
