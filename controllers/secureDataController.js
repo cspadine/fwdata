@@ -191,7 +191,7 @@ exports.data_delete_post = function(req, res) {
        const morphlist = wToM[0];
        const glosslist = wToM[1];
        //loop through morphemes in morphlist
- CFEloop(morph, gloss, user, lang).then((output) => resolve(output)).catch((e)=> console.log(e))
+ CFEloop(morphlist, glosslist, user, lang).then((output) => resolve(output)).catch((e)=> console.log(e))
   }
  })
   }
