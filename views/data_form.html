@@ -70,7 +70,7 @@
       <input type='text' placeholder='Language' style="width: 800px;" name='lang' id='lang' oninput='suggestLang()' autocomplete="off"/><br>
       <div class='dropdown'>
         <div id="myDropdown" class="dropdown-content">
-        <a> test</a>
+        <a></a>
         </div>
       </div>
       <div id='langAutoPopulate'></div>
@@ -90,20 +90,20 @@
   //upon submitting the new data, this prevents the default submission, reformats the
   //data, and then submits the reformatted version.
   document.getElementById("newDataForm").addEventListener("submit", function(event){
-    document.getElementById('comments').innerHTML += "submit event prevented<br>"
+    console.log("submit event prevented<br>")
     event.preventDefault()
     let text = document.getElementById('text').value.trim();
-    document.getElementById('comments').innerHTML += 'text element: ' + text + "<br>"
+    console.log('text element: ' + text + "<br>")
     text = text.replace('&lt;','^^').replace('&gt;','^^^')
-    document.getElementById('comments').innerHTML += 'text element, char replcement: ' + text + "<br>"
+    console.log('text element, char replcement: ' + text + "<br>")
     const textLength = text.split(' ').length;
-    document.getElementById('comments').innerHTML += 'Text length'+ textLength + "<br>"
-    document.getElementById('comments').innerHTML += '0:' + text.split(' ')[0]+ "<br>"
-    document.getElementById('comments').innerHTML += '2:' +text.split(' ')[1]+ "<br>"
-    document.getElementById('comments').innerHTML += '3:' +text.split(' ')[2]+ "<br>"
-    document.getElementById('comments').innerHTML += '4:' +text.split(' ')[3]+ "<br>"
-    document.getElementById('comments').innerHTML += '5:' +text.split(' ')[4] + "<br>"
-    document.getElementById('comments').innerHTML += '6:' +text.split(' ')[5] + "<br>"
+    console.log('Text length'+ textLength + "<br>")
+    console.log('0:' + text.split(' ')[0]+ "<br>")
+    console.log('2:' +text.split(' ')[1]+ "<br>")
+    console.log('3:' +text.split(' ')[2]+ "<br>")
+    console.log('4:' +text.split(' ')[3]+ "<br>")
+    console.log('5:' +text.split(' ')[4] + "<br>")
+    console.log('6:' +text.split(' ')[5] + "<br>")
 
       let glossValue = '';
       let morphValue = '';

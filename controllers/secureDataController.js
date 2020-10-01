@@ -203,7 +203,7 @@ exports.languages_get = function(req,res){
   console.log(req.params.lang);
   let language = new RegExp(['(^| )',req.params.lang].join(''), "i");
   console.log(language);
-  Lang.find({'lang':{$regex: language}}, function(err,q){
+  Lang.find({$or: [{'lang':{$regex: language}}, {'iso':{$regex: language}}]}, function(err,q){
         if (err) console.log(err);
         console.log(q)
        res.send(q);

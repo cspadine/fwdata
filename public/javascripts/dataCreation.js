@@ -355,10 +355,8 @@ function formatGlossResults (gloss,x) {
 
 //when the morph cell is changed, the gloss suggestions are updated
 function morphChangeInput(x){
-  document.getElementById('comments').innerHTML += 'input';
   //get input from whatever word is changed on the morpheme line
   let input = document.getElementById(`morph_span_${x}`).innerHTML;
-  document.getElementById('comments').innerHTML += input;
   //split that word into morphemes on these seperators
   let splitTextArray = input.split(/[-~=\/>]|&lt;|&gt;/g);
   //remove empty elements from the array of morphemes.
@@ -398,7 +396,6 @@ function morphChangeInput(x){
     suggestionCell.appendChild(suggestionSubTable);
     suggestionSubTable.appendChild(suggestionSubTableRow);
 
-    document.getElementById('comments').innerHTML += sepArray;
 
     for (let m = 0 ; m < splitTextArray.length-1; m++){
 
@@ -488,7 +485,10 @@ function morphChangeInput(x){
   }
 }
 
+let timeout = null;
 const suggestLang = function (){
+  clearTimeout(timeout);
+  timeout = setTimeout(function (){
     const dropdown = document.getElementById("myDropdown");
     dropdown.style.display = "block";
   const lang = document.getElementById('lang').value;
@@ -499,7 +499,6 @@ const suggestLang = function (){
       if (request.status >= 200 && request.status < 300){
         resolve(request.response);
       } else {
-
         reject({
           status: request.status,
           statusText: request.statusText
@@ -529,8 +528,8 @@ const suggestLang = function (){
 
 
   })
+}, 500)
 }
-
 
 
 
