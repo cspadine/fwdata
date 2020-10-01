@@ -7,7 +7,7 @@ module.exports.getQueryList = function (req){
   let searchList = [{'user':req.user.user._id}];
 //paramsList contains the possible parameters that users
 //can search for
-  let paramsList = ['text','gloss','trans','notes','source','ref','tags','judgment','language'];
+  let paramsList = ['text','gloss','trans','notes','source','ref','tags','judgment','lang'];
 //loops throough each search parameter
   for (let j = 0; j < paramsList.length;j++){
     const currentParam = paramsList[j];
@@ -51,5 +51,6 @@ module.exports.getQueryList = function (req){
       }
     }
   }
+  console.log(searchList)
   return searchList;
 }

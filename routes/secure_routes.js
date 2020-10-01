@@ -49,6 +49,7 @@ router.get('/create', (req, res, next) => {
 
 // Handle data update on POST.
 router.post('/update',(req, res) => {
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
   const dataToUpdate = req.body.data_change_ids.split(',');
   let updateContent = {};
   if (req.body.text){
@@ -88,7 +89,7 @@ router.post('/update',(req, res) => {
     if (err) {
       res.send(err);
     } else {
-      res.send(result);
+      res.render('data_display',{user: user});
     }
   })
 })

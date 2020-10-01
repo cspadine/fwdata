@@ -24,6 +24,8 @@ function autoPopulateGloss(array){
   //and we want the newest version of the content to overwrite the previous versions
   //so we need to clear out the previous content in this space before we add
   //anything new
+
+
   document.getElementById('morph_space').innerHTML = '';
 
   //strips punctuation from the array of words
@@ -281,6 +283,7 @@ const cleanTextArray = function(array){
 
 
 //requests gloss suggestions from the server
+//returns search results as a json object
 const makeRequest = function (url, method){
   const lang = document.getElementById('lang').value;
   const request = new XMLHttpRequest();
@@ -309,7 +312,9 @@ function formatGlossComplex (gloss,x,k){
   for (let j = 0; j < JSON.parse(gloss).lexRes.length; j++) {
     resList += `<input type='button' id='suggestion_span_${x}_${j}_${k}' value='${JSON.parse(gloss).lexRes[j].gloss}' onclick="addComplexGloss('${x}','${j}','${k}')"><br>`
       if (j === 0 ){
-        document.getElementById(`gloss_span_${x}_${k}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+        if (document.getElementById(`gloss_span_${x}_${k}`).innerHTML === ''){
+          document.getElementById(`gloss_span_${x}_${k}`).innerHTML = JSON.parse(gloss).lexRes[j].gloss;
+        }
       }
     }
     return resList;
@@ -559,7 +564,7 @@ const findLangs = function(){
 
 const setLang = function(lang){
   document.getElementById('lang').value = lang;
-  populateGloss();
+//  populateGloss();
 }
 
 
