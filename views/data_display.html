@@ -90,6 +90,7 @@
     <input name='data_delete_id' id='data_delete_id' type='hidden'>
     <input type='submit' value='Delete selected'>
   </form>
+  <div id='deletecomments'>text</div>
 </div>
 
 <div id='sidebar_tabs_0' class='sidebar_tabs' onclick='hideMenu("searchdiv")'>search</div>
@@ -208,7 +209,8 @@ function selectFunction(i){
                 toDeleteList.splice(idIndex, 1);
                 document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
                 document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-                document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
               }
       }
        else {
@@ -217,7 +219,8 @@ function selectFunction(i){
     toDeleteList.push(dataList[i]['_id']).toString();
     document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
   }
 };
 };
@@ -234,7 +237,8 @@ function selectUploadFunction(i){
                 dataUploadList.splice(idIndex, 1);
                 document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
                 document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-                document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
               }
       }
        else {
@@ -243,7 +247,8 @@ function selectUploadFunction(i){
     dataUploadList.push(i).toString();
     document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
   }
 };
 };
@@ -293,26 +298,32 @@ function checkAll(){
   const checkbox = document.getElementById('exampleItem'+i);
   checkbox.setAttribute('style', 'background-color:lightgray');
   if (!toDeleteList.includes(dataList[i]['_id'])){
+    document.getElementById('deletecomments').innerHTML = toDeleteList
     toDeleteList.push(dataList[i]['_id']).toString();
     document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-    document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
   };
   };
   checkVal = true;
+
 } else {
   for (let i= 0; i < dataList.length; i++){
   let checkbox = document.getElementById('exampleItem'+i);
   checkbox.setAttribute('style', 'background-color:white');
     if (toDeleteList.includes(dataList[i]['_id'])){
+      document.getElementById('deletecomments').innerHTML = toDeleteList
       let idIndex = toDeleteList.indexOf(dataList[i]['_id']);
       toDeleteList.splice(idIndex, 1);
       document.getElementById('data_delete_id').setAttribute('value', toDeleteList);
       document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
-      document.getElementById('data_export_id').setAttribute('value', toDeleteList);
+      document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
+      document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
     };
   };
   checkVal = false;
+
 }
 }
 
