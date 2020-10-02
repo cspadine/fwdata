@@ -73,10 +73,10 @@ exports.data_delete_post = function(req, res) {
   const dataid = req.body.data_delete_id.split(',');
   Data.deleteMany({_id:{$in: dataid}}, function (err,q) {
    if(err) console.log(err);
-       Data.find({})
+       Data.find({'user' : req.user.user._id})
        .exec(function (err, list_data) {
            if (err) { return next(err); }
-           res.redirect('/secure/all');
+           res.render('data_display', { title: 'Data List', data_list: list_data, user : user });
      });
 
  })}
