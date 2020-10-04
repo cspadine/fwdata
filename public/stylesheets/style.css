@@ -224,3 +224,8 @@ text-align:right;
 
 /* Change color of dropdown links on hover */
 .dropdown-content a:hover {background-color: #ddd}
+
+
+#lang_name {
+  color: black;
+}

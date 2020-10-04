@@ -33,17 +33,7 @@ const storage = multer.diskStorage({
     }
 });
 
-
-
-router.get('/create', (req, res, next) => {
-          const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-          Data.distinct('lang', {'user':req.user.user._id})
-          .exec(function (err, lang) {
-            if (err) { return next(err); }
-          res.render('data_form', { title: 'Create Data', data_list:'', message : '', user: user, lang:lang});
-          })
-});
-
+router.get('/create', data_controller.get_create);
 
 
 
@@ -268,25 +258,13 @@ router.get('/sources', data_controller.source_get);
 router.post('/sources', data_controller.source_post);
 router.post('/delete', data_controller.data_delete_post);
 router.get('/languages/:lang', data_controller.languages_get);
+router.get('/iso/:lang', data_controller.iso_get);
 // GET request for one lexeme.
 router.get('/lexeme/:id', data_controller.lexeme_detail);
 
-
-
-
-
 router.post('/create',data_controller.create_post)
 
-
-
-router.get('/all', (req, res, next) => {
-    const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    Data.find({'user' : req.user.user._id})
-    .exec(function (err, list_data) {
-        if (err) { return next(err); }
-        res.render('data_display', { title: 'Data List', data_list: list_data, user : user });
-	});
-});
+router.get('/all', data_controller.get_all)
 
 router.post('/search', data_controller.search);
 

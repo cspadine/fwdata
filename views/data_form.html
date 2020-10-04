@@ -66,8 +66,11 @@
       <input type='text' placeholder='Source' style="width: 800px;" name='source' id='source' /><br>
       <label for="ref" class='input_label'>Reference:<span class="tooltiptext">Tooltip text</span></label>
       <input type='text' placeholder='Reference' style="width: 800px;" name='ref' id='ref' /><br>
-      <label for="lang" class='input_label'>Language:<span class="tooltiptext">Tooltip text</span></label>
-      <input type='text' placeholder='Language' style="width: 800px;" name='lang' id='lang' oninput='suggestLang()' autocomplete="off"/><br>
+      <label for="lang_name" class='input_label'>Language:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' id='lang_name' placeholder='Language' oninput='suggestLang()' style="width: 200px;" autocomplete="off"/>
+      <label for="lang" class='input_label'>ISO code:<span class="tooltiptext">Tooltip text</span></label>
+      <input type='text' placeholder='ISO code' style="width: 100px;" name='lang' id='lang' oninput='suggestISO()' autocomplete="off"/>
+      <a id='lang_comments'></a><br>
       <div class='dropdown'>
         <div id="myDropdown" class="dropdown-content">
         <a></a>
@@ -76,7 +79,7 @@
       <div id='langAutoPopulate'></div>
       <input type='hidden' name='morph' id='morph' value=''/><br>
       <input type='hidden' name='gloss' id='gloss' value=''/><br>
-    <input type='submit' value='Submit'>
+    <input type='submit' value='Submit' id='data_submit'>
 </form>
 
 
@@ -85,15 +88,50 @@
 
 
 <script>
+document.getElementById('lang').addEventListener("input", function(event){
+  const language_code = document.getElementById('lang')
+  const regex = new RegExp('^[a-z][a-z][a-z]$');
+if (regex.test(language_code.value) === false){
+      language_code.style.backgroundColor = '#ffb3b3'
+      document.getElementById('lang_comments').innerHTML = 'Required: 3-letter iso langauge code'
+      document.getElementById("data_submit").disabled = true;
+
+    }
+    else {
+      language_code.style.backgroundColor = "white"
+      document.getElementById('lang_comments').innerHTML = ''
+      document.getElementById("data_submit").disabled = false;
+
+    }
+})
+
+
+document.getElementById('lang_name').addEventListener("input", function(event){
+  const language_code = document.getElementById('lang')
+  const regex = new RegExp('^[a-z][a-z][a-z]$');
+if (regex.test(language_code.value) === false){
+      language_code.style.backgroundColor = '#ffb3b3'
+      document.getElementById('lang_comments').innerHTML = 'Required: 3-letter iso langauge code'
+      document.getElementById("data_submit").disabled = true;
+
+    }
+    else {
+      language_code.style.backgroundColor = "white"
+      document.getElementById('lang_comments').innerHTML = ''
+      document.getElementById("data_submit").disabled = false;
+
+    }
+})
+
+
+
 
 
   //upon submitting the new data, this prevents the default submission, reformats the
   //data, and then submits the reformatted version.
   document.getElementById("newDataForm").addEventListener("submit", function(event){
-    console.log("submit event prevented<br>")
     event.preventDefault()
     let text = document.getElementById('text').value.trim();
-    console.log('text element: ' + text + "<br>")
     text = text.replace('&lt;','^^').replace('&gt;','^^^')
     console.log('text element, char replcement: ' + text + "<br>")
     const textLength = text.split(' ').length;
@@ -142,6 +180,8 @@
 
 <p>+++++++++++++++++++++++++++</p>
 
+<div id='comments'>
+</div>
 
 <% if(message){ %>
 <h2> <%= message %> </h2>

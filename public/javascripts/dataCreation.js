@@ -485,13 +485,13 @@ function morphChangeInput(x){
   }
 }
 
-let timeout = null;
+let timeout = null
 const suggestLang = function (){
   clearTimeout(timeout);
   timeout = setTimeout(function (){
     const dropdown = document.getElementById("myDropdown");
     dropdown.style.display = "block";
-  const lang = document.getElementById('lang').value;
+  const lang = document.getElementById('lang_name').value;
   const request = new XMLHttpRequest();
   return new Promise(function (resolve, reject) {
     request.onreadystatechange = function () {
@@ -521,7 +521,7 @@ const suggestLang = function (){
         language.innerHTML += JSON.stringify(results[j][0]).slice(1,-1);
         language.innerHTML += ')'
         language.setAttribute('id',results[j][0]);
-        language.setAttribute('onclick', 'setLang(this.id)');
+        language.setAttribute('onclick', `setLang(this.id, ${JSON.stringify(results[j][1])})`);
         dropdown.appendChild(language)
         dropdown.innerHTML += '<br>';
       }
@@ -530,6 +530,71 @@ const suggestLang = function (){
   })
 }, 500)
 }
+
+
+
+
+
+
+let timeout_iso = null
+const suggestISO = function (){
+  clearTimeout(timeout_iso);
+  timeout_iso = setTimeout(function (){
+    const dropdown = document.getElementById("myDropdown");
+    dropdown.style.display = "block";
+  const lang = document.getElementById('lang').value;
+  const request = new XMLHttpRequest();
+  return new Promise(function (resolve, reject) {
+    request.onreadystatechange = function () {
+      if (request.readyState !== 4) return;
+      if (request.status >= 200 && request.status < 300){
+        resolve(request.response);
+      } else {
+        reject({
+          status: request.status,
+          statusText: request.statusText
+        });
+      }
+    }
+    request.open('GET', '/secure/iso/'+lang, true);
+    request.send();
+  }).then((res)=>{
+    res_obj = JSON.parse(res)
+    const results = [];
+    for (let i = 0; i < res_obj.length; i++){
+      results.push([res_obj[i]['iso'],res_obj[i]['lang']])
+    }
+    dropdown.innerHTML = ''
+      for (let j = 0 ; j < results.length ; j++){
+        const language = document.createElement('a');
+        language.innerHTML = JSON.stringify(results[j][1]).slice(1,-1)
+        language.innerHTML += ' ('
+        language.innerHTML += JSON.stringify(results[j][0]).slice(1,-1);
+        language.innerHTML += ')'
+        language.setAttribute('id',results[j][0]);
+        language.setAttribute('onclick', `setLang(this.id, ${JSON.stringify(results[j][1])})`);
+        dropdown.appendChild(language)
+        dropdown.innerHTML += '<br>';
+      }
+
+
+  })
+}, 500)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -546,14 +611,14 @@ const findLangs = function(){
   }
   for (let i = 0; i < langs.length ;i++){
     const langButton = document.createElement('input');
-    langButton.innerHTML = langs[i];
-    langButton.setAttribute("value",langs[i]);
+    langButton.setAttribute("value",langs[i]['lang']);
     langButton.setAttribute('type','button')
-    langButton.setAttribute("id",langs[i]);
-    langButton.setAttribute('onclick', 'setLang(this.value)');
+    langButton.setAttribute("id",langs[i]['iso']);
+    langButton.setAttribute('onclick', `setLang(this.id, this.value)`);
     document.getElementById('langAutoPopulate').appendChild(langButton);
     if (i == 0){
-      document.getElementById('lang').value = langs[i]
+      document.getElementById('lang').value = langs[i]['iso']
+      document.getElementById('lang_name').value = langs[i]['lang']
     }
   }
 }
@@ -561,8 +626,9 @@ const findLangs = function(){
 
 
 
-const setLang = function(lang){
+const setLang = function(lang, name){
   document.getElementById('lang').value = lang;
+  document.getElementById('lang_name').value = name;
 //  populateGloss();
 }
 

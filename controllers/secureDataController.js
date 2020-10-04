@@ -15,6 +15,43 @@ const checkForExisting = require('../helper/lexiconFormatting.js').checkForExist
 //import the JSON web token key from the .env file for authetification
 const jwtKey = process.env.JWT_SECRET_WORD;
 
+//get all data
+exports.get_all = function(req, res, next){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+  Data.find({'user' : req.user.user._id})
+  .exec(function (err, list_data) {
+      if (err) { return next(err); }
+      res.render('data_display', { title: 'Data List', data_list: list_data, user : user });
+});
+}
+
+//render the data creation page
+exports.get_create = function(req, res, next){
+        const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
+        Data.distinct('lang', {'user':req.user.user._id})
+        .exec(function (err, lang) {
+        if (err) { return next(err); }
+          const promises = []
+            for (let i = 0; i < lang.length; i++){
+              promises.push(Lang.findOne({"iso":lang[i]}, {lang:1, iso:1}))
+            }
+            Promise.all(promises)
+              .then((res) => {
+                  const lang_objs = res;
+                  return lang_objs;
+                  }
+                ).then((lang_objs) => res.render('data_form', { title: 'Create Data', data_list:'', message : '', user: user, lang:lang_objs}))
+    .catch((e) => {
+        throw e
+    });
+          })
+      };
+
+
+
+
+
+
 //search in data
 exports.search = function(req, res, next){
   const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
@@ -23,6 +60,10 @@ exports.search = function(req, res, next){
        res.render('data_display',{data_list:q, user : user });
    });
 };
+
+
+
+
 
 exports.lexicon_get = function(req, res, next){
   const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
@@ -203,7 +244,25 @@ exports.languages_get = function(req,res){
   console.log(req.params.lang);
   let language = new RegExp(['(^| )',req.params.lang].join(''), "i");
   console.log(language);
-  Lang.find({$or: [{'lang':{$regex: language}}, {'iso':{$regex: language}}]}, function(err,q){
+  Lang.find({'lang':{$regex: language}}, function(err,q){
+        if (err) console.log(err);
+        console.log(q)
+       res.send(q);
+
+   });
+
+}
+
+
+
+
+exports.iso_get = function(req,res){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' ); //user validation
+  //let langauge = 'req.params.lang';
+  console.log(req.params.lang);
+  let language = new RegExp(['(^| )',req.params.lang].join(''), "i");
+  console.log(language);
+  Lang.find({'iso':{$regex: language}}, function(err,q){
         if (err) console.log(err);
         console.log(q)
        res.send(q);
