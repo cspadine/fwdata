@@ -128,7 +128,7 @@ router.post('/exportJSON', (req, res, next) => {
     + String(d.getHours()) + String(d.getMinutes())
     + String(d.getSeconds()) + String(d.getMilliseconds());;
   const fileName = `public/data_exports/${user}${n}.json`;
-  Data.find({_id:{$in : idList}})
+  Data.find({_id:{$in : idList}}, {text:1, morph:1, gloss:1, trans:1, notes:1, tags:1, lang:1, source:1, judgment:1,ref:1,context:1})
   .exec(function (err, list_data) {
     if (err) { return next(err); }
     const objectToWrite = JSON.stringify({sentences: list_data});
