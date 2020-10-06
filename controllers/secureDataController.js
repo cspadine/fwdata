@@ -14,6 +14,104 @@ const wordsToMorphs = require('../helper/lexiconFormatting.js').wordsToMorphs;
 const checkForExisting = require('../helper/lexiconFormatting.js').checkForExisting;
 //import the JSON web token key from the .env file for authetification
 const jwtKey = process.env.JWT_SECRET_WORD;
+const multer = require('multer');
+const storage = multer.diskStorage({
+    destination: function(req, file, cb) {
+        cb(null, 'public/user_uploads/');
+    },
+    filename: function(req, file, cb) {
+        cb(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname));
+    }
+  })
+
+
+exports.exportText = function(req, res, next){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' )
+  const idList = req.body.data_export_id_plaintext.split(',');
+  const d = new Date();
+  const n = String(d.getMonth()) + String(d.getDate()) + String(d.getYear())
+    + String(d.getHours()) + String(d.getMinutes())
+    + String(d.getSeconds()) + String(d.getMilliseconds());;
+  const fileName = `public/data_exports/${user}${n}.txt`;
+Data.find({_id:{$in : idList}}, {text:1, morph:1, gloss:1, trans:1, notes:1, tags:1, lang:1, source:1, judgment:1,ref:1,context:1})
+.exec(function(err, list_data){
+  if (err){ return next(err); }
+    let data_to_write =''
+    for (let i = 0; i < list_data.length ; i++){
+          data_to_write += list_data[i]['context'];
+          data_to_write += '\n';
+          data_to_write += list_data[i]['judgment']+list_data[i]['text'];
+          data_to_write += '\n';
+          data_to_write += list_data[i]['morph'];
+          data_to_write += '\n';
+          data_to_write += list_data[i]['gloss'];
+          data_to_write += '\n';
+          data_to_write += '"'+list_data[i]['trans']+'"';
+          data_to_write += '\n';
+          data_to_write += '\n';
+    }
+    writeToFile(fileName, data_to_write).then(() => res.download(fileName));
+  }
+)
+}
+
+
+
+
+
+
+
+exports.exportTB = function(req, res, next){
+  const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' )
+  const idList = req.body.data_export_id_toolbox.split(',');
+  const d = new Date();
+  const n = String(d.getMonth()) + String(d.getDate()) + String(d.getYear())
+    + String(d.getHours()) + String(d.getMinutes())
+    + String(d.getSeconds()) + String(d.getMilliseconds());;
+  const fileName = `public/data_exports/${user}${n}.txt`;
+Data.find({_id:{$in : idList}}, {text:1, morph:1, gloss:1, trans:1, notes:1, tags:1, lang:1, source:1, judgment:1,ref:1,context:1})
+.exec(function(err, list_data){
+  if (err){ return next(err); }
+    let data_to_write =''
+    for (let i = 0; i < list_data.length ; i++){
+          data_to_write +=  '\\ref '+list_data[i]['_id'];
+          data_to_write += '\n';
+          data_to_write += '\\iso '+list_data[i]['lang'];
+          data_to_write += '\n'
+          data_to_write += '\\ct '+list_data[i]['context'];
+          data_to_write += '\n';
+          data_to_write += '\\jg '+list_data[i]['judgment']
+          data_to_write += '\n';
+          data_to_write += '\\tx '+list_data[i]['text'];
+          data_to_write += '\n';
+          data_to_write += '\\mb '+list_data[i]['morph'].join(' ');
+          data_to_write += '\n';
+          data_to_write += '\\gl '+list_data[i]['gloss'].join(' ');
+          data_to_write += '\n';
+          data_to_write += '\\ft '+list_data[i]['trans'];
+          data_to_write += '\n';
+          data_to_write += '\\nt '+list_data[i]['notes'];
+          data_to_write += '\n';
+          data_to_write += '\\tg '+list_data[i]['tags'];
+          data_to_write += '\n';
+          data_to_write += '\\sc '+list_data[i]['source'];
+          data_to_write += '\n';
+          data_to_write += '\\rf '+list_data[i]['ref'];
+          data_to_write += '\n';
+          data_to_write += '\n';
+    }
+    writeToFile(fileName, data_to_write).then(() => res.download(fileName));
+  }
+)
+}
+
+
+
+
+
+
+
+
 
 //get all data
 exports.get_all = function(req, res, next){
@@ -48,6 +146,16 @@ exports.get_create = function(req, res, next){
       };
 
 
+
+      function writeToFile(filePath, arr)  {
+        return new Promise((resolve, reject) => {
+          const file = fs.createWriteStream(filePath);
+          file.write(arr);
+          file.end();
+          file.on("finish", () => { resolve(true); });
+          file.on("error", reject);
+        });
+      }
 
 
 

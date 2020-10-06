@@ -78,9 +78,13 @@
     <button type='submit'>export as JSON</button>
   </form>
     <form action='/secure/exportText' method='post'>
-    <input type='hidden' id='data_export_id_plaintext' name='data_export_id_plaintext'/>
-    <button type='submit'>export as plain text</button>
-  </form>
+      <input type='hidden' id='data_export_id_plaintext' name='data_export_id_plaintext'/>
+      <button type='submit'>export as plain text</button>
+    </form>
+    <form action='/secure/exportTB' method='post'>
+      <input type='hidden' id='data_export_id_toolbox' name='data_export_id_toolbox'/>
+      <button type='submit'>export as toolbox</button>
+    </form>
 </div>
 
 <div id='deletediv' class='sidebar'>
@@ -211,6 +215,7 @@ function selectFunction(i){
                 document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
                 document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
                 document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
               }
       }
        else {
@@ -221,6 +226,7 @@ function selectFunction(i){
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
   }
 };
 };
@@ -239,6 +245,7 @@ function selectUploadFunction(i){
                 document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
                 document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
                 document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+                document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
               }
       }
        else {
@@ -249,6 +256,7 @@ function selectUploadFunction(i){
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
   }
 };
 };
@@ -304,6 +312,7 @@ function checkAll(){
     document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
     document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+    document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
   };
   };
   checkVal = true;
@@ -320,6 +329,7 @@ function checkAll(){
       document.getElementById('data_change_ids').setAttribute('value', toDeleteList);
       document.getElementById('data_export_id_json').setAttribute('value', toDeleteList);
       document.getElementById('data_export_id_plaintext').setAttribute('value', toDeleteList);
+      document.getElementById('data_export_id_toolbox').setAttribute('value', toDeleteList);
     };
   };
   checkVal = false;

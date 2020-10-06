@@ -268,6 +268,8 @@ router.get('/all', data_controller.get_all)
 
 router.post('/search', data_controller.search);
 
+router.post('/exportText', data_controller.exportText);
+router.post('/exportTB', data_controller.exportTB);
 
 router.post('/upload', (req, res, next) => {
   let uploadedData = [];

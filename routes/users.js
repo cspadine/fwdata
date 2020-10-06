@@ -23,10 +23,18 @@ router.get('/signup', function(req, res) {
 
 
 //new sign up
-router.post('/signup', passport.authenticate('signup', { session : false , failureRedirect : '/users/signup', failureFlash : true }) , async (req, res, next) => {
-      const user = ( req.cookies.jwt ? jwt.verify(req.cookies.jwt, jwtKey).user.username : '' );
-    res.render('index', { user : user, message: req.flash('signup') });
-});
+router.post('/signup', passport.authenticate(
+  'signup', {
+   session : false,
+   failureRedirect : '/users/signup',
+   successRedirect : '/',
+   failureFlash : true
+ }
+)
+)
+
+
+
 
 
 
