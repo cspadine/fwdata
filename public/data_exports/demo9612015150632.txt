@@ -1,0 +1,280 @@
+ef5f6e3ff6f9804a00171d4d40
+mlg
+
+m-i-histra
+m-i-histra
+PAST-PASS-move.slowly
+"moved slowly"
+
+ef5f6e402bf9804a00171d4d44
+mlg
+
+m-i-lahatra
+m-i-lahatra
+PAST-PASS-be.in.order
+"to be in order"
+
+ef5f6e404bf9804a00171d4d46
+mlg
+
+m-i-sitrika
+m-i-sitrika
+PAST-PASS-hide
+"be hidden"
+
+ef5f6e408df9804a00171d4d48
+mlg
+
+m-an-isatra
+m-an-isatra
+PAST-ACT-move.slowly
+"Y move X slowly"
+
+ef5f6e40b6f9804a00171d4d4b
+mlg
+
+m-an-lahatra
+m-an-lahatra
+PAST-ACT-be.in.order
+"Y arrange X"
+
+ef5f6e40d5f9804a00171d4d4c
+mlg
+
+m-an-itrika
+m-an-itrika
+PAST-ACT-hide
+"Y hide X"
+
+ef5f6e5a9be2e28485a2096d8c
+tag
+
+m-i-hisastra
+m-i-hisastra
+--
+""
+
+ef5f6f57c9872bf89871993631
+ban
+
+Ia pules
+ia,pules
+3,sleep
+"(S)he is sleeping"
+
+ef5f6f582a872bf89871993635
+ban
+
+Bawi-ne punika tumbas tiang
+bawi-ne,punika,tumbas,tiang
+pig-DET,that,OV.buy,1
+"I bought the pig."
+
+ef5f6f58dd872bf8987199363b
+ban
+
+Nyoman ejuk polisi
+nyoman,ejuk,polisi
+Nyoman,OV.arrest,police
+"A policeman arrested Nyoman."
+
+ef5f6f5910872bf8987199363f
+ban
+
+Polisi ng-ejuk Nyoman
+polisi,ng-ejuk,nyoman
+police,AV-arrest,Nyoman
+"A policeman arrested Nyoman."
+
+ef5f6f5995872bf89871993642
+ban
+
+Jani gumi-ne merdeka ka-prentah teken bangsa gelah
+jani,gumi-ne,merdeka,ka-prentah,teken,bangsa,gelah
+now,country-DEF,free,PASS-govern,by,people,own
+"Now the country has got freedom, it is governed by our own people."
+
+ef5f6f59f5872bf8987199364c
+ban
+
+Buku-buku-ne sane tebel-tebel patut ka-urukin antuk siswa-siswa punika
+buku-buku-ne,sane,tebel-tebel,patut,ka-urukin,antuk,siswa-siswa,punika
+book-RED-DET,REL,thick-RED,appropriate,PASS-practice,by,student-RED,that
+"The thick books are the ones that are appropriate to be learned by the students."
+
+ef5f6f5a43872bf89871993657
+ban
+
+Nyoman baang-a pipis teken Wayan
+nyoman,baang-a,pipis,teken,wayan
+Nyoman,give-PASS,money,by,Wayan
+"Nyoman was given money by Wayan."
+
+ef5f6f5abd872bf8987199365c
+ban
+
+Denyut nadi tangan-ne Gusti Ayu Jinar priksan-a teken Nyoman Santosa
+denyut,nadi,tangan-ne,gusti,ayu,jinar,priksan-a,teken,nyoman,santosa
+pulse,blood.vessel,hand-3POSS,Gusti,Ayu,Jinar,examine-PASS,by,Nyoman,Santosa
+"The pulse in the blood vessel of Gusti Ayu Jinar's hand was examined by Nyoman Santosa."
+
+ef5f6f5b04872bf89871993666
+ban
+
+Tusing ada warung ane nu m-ampakang
+tusing,ada,warung,ane,nu,m-ampakang
+NEG,exist,kiosk,REL,still,PASS-open
+"There were no kiosks still open."
+
+ef5f6f5b48872bf8987199366e
+ban
+
+Kamar-e nomor 10 ento ma-sambung teken kamar tamu-ne
+kamar-e,nomor,10,ento,ma-sambung,teken,kamar,tamu-ne
+room-DEF,number,10,that,PASS-connect,by,room,guest-DET
+"Room 10 is connected with the guest room."
+
+ef5f6f5bf6872bf89871993678
+ban
+
+Wayan gugut cicing
+wayan,gugut,cicing
+Wayan,OV.bite,dog
+"A dog bit Wayan."
+
+ef5f6f5c27872bf8987199367b
+ban
+
+*Wayan gugut cicing-e ento
+wayan,gugut,cicing-e,ento
+Wayan,OV.bite,dog-DEF,that
+"The dog bit Wayan."
+
+ef5f6f5c9a872bf8987199367d
+ban
+
+Potlot-e ento edengin=a Wayan
+potlot-e,ento,edengin=a,wayan
+pencil-DEF,that,OV.show=3,Wayan
+"(S)he showed Wayan the pencil."
+
+ef5f6f5cc7872bf89871993680
+ban
+
+Wayan edengin=a potlot-e ento
+wayan,edengin=a,potlot-e,ento
+Wayan,OV.show=3,pencil-DEF,that
+""
+
+ef5f6f5cf3872bf89871993681
+ban
+
+Buku-ne jemak-a teken Wayan
+buku-ne,jemak-a,teken,wayan
+book-DET,take-PASS,by,Wayan
+"The book was taken by Wayan."
+
+ef5f6f5dd3872bf89871993683
+ban
+
+Buku-ne ka-ambil antuk I Guru
+buku-ne,ka-ambil,antuk,i,guru
+book-DET,PASS-take,by,ART,teacher
+"The book was taken by the teacher."
+
+ef5f6f5e07872bf89871993687
+ban
+
+Angin gunung matulak ka segara
+angin,gunung,matulak,ka,segara
+wind,mountain,go,to,sea
+"The wind from the mountain blew to the sea."
+
+ef5f6f5e31872bf8987199368d
+ban
+
+Luh Kerti bangun
+luh,kerti,bangun
+Luh,Kerti,get.up
+"Luh Kerti got up."
+
+ef5f6f5e76872bf89871993691
+ban
+
+Ni Luh Sari malaib ke rurung-e
+ni,luh,sari,malaib,ke,rurung-e
+Ni,Luh,Sari,run,to,lane-DEF
+"Ni Luh Sari ran to(ward) the lane."
+
+ef5f6f5ebf872bf89871993697
+ban
+
+Ia pules ditu
+ia,pules,ditu
+3,sleep,there
+"(S)he slept there."
+
+ef5f6f5f3c872bf89871993699
+ban
+
+Pules ia ditu
+pules,ia,ditu
+sleep,3,there
+"(S)he SLEPT there."
+
+ef5f6f5f59872bf8987199369a
+ban
+
+Ida ng-adol bawi
+ida,ng-adol,bawi
+3,AV-sell,pig
+"(S)he sold a pig."
+
+ef5f6f5f7c872bf8987199369d
+ban
+
+Ng-adol bawi ida
+ng-adol,bawi,ida
+AV-sell,pig,3
+"(S)he SOLD A PIG."
+
+ef5f6f5fb5872bf8987199369e
+ban
+
+Manusa patut saling tulung
+manusa,patut,saling,tulung
+human,appropriate,REC,OV.help
+"Human beings ought to help each other."
+
+ef5f6f5ffa872bf898719936a2
+ban
+
+*Manusa patut saling nulung
+manusa,patut,saling,nulung
+human,appropriate,REC,AV.help
+"Human beings ought to help each other."
+
+ef5f764290ec0b5800172eea4d
+ban
+
+blah 
+blah
+blah&nbsp;
+""
+
+ef5f7642abec0b5800172eea4f
+ban
+
+blah blah blah 
+blah,blah,blah
+blah&nbsp;,blah&nbsp;,blah&nbsp;
+""
+
+ef5f76474b8d93560017cbcc60
+ban
+
+Iraga olahraga sibilang dina 
+iraga,olahraga,sibilang,dina
+test,test,test,test
+"test"
+

@@ -229,3 +229,7 @@ text-align:right;
 #lang_name {
   color: black;
 }
+
+td {
+  white-space: nowrap;
+}

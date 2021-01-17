@@ -147,6 +147,153 @@ exports.get_create = function(req, res, next){
 
 
 
+
+      //Add a new sentence and the morphemes that compose it
+       exports.create_post = function(req,res) {
+
+         const user = ( req.cookies.jwt ?
+           jwt.verify(req.cookies.jwt, jwtKey).user.username : '' ); //user validation
+         const errors = validator.validationResult(req);
+         const cleanedMorph = morphCleaner(req.body.morph.split(',')); //strip trailing
+         //and leading punctuation
+         let data = new Data({ //create new Data object
+                 text: req.body.text,
+                 source: req.body.source,
+                 ref: req.body.ref,
+                 judgment: req.body.judgment,
+                 context: req.body.context,
+                 gloss: req.body.gloss.split(','),
+                 morph: cleanedMorph,
+                 trans: req.body.trans,
+                 notes: req.body.notes,
+                 tags: req.body.tags.split(' '),
+                 user: req.user.user._id,
+                 lang: req.body.lang,
+                 });
+                 console.log(data)
+
+          addLexemes(data.morph, data.gloss, data.user, data.lang) //add lexemes to db
+          .then((output) => data.morpheme_ids = output)//add lexeme ids to the Data object
+          .then(()=> {
+            if ( !errors.isEmpty() ) {
+                res.send({data_list: data, errors: errors.array()});
+             return;
+           }  else {
+             Data.findOne({ 'text': data.text, 'context': data.context, 'lang': data.lang, 'user':data.user})
+                 .exec( function(err, found_text ) {
+                     if (err) { return next(err); }
+
+                     if (found_text) {//display result
+                       Data.distinct('lang', {'user':req.user.user._id})
+                       .exec(function (err, lang) {
+                       if (err) { return next(err); }
+                         const promises = []
+                           for (let i = 0; i < lang.length; i++){
+                             promises.push(Lang.findOne({"iso":lang[i]}, {lang:1, iso:1}))
+                           }
+                           Promise.all(promises)
+                             .then((res) => {
+                                 const lang_objs = res;
+                                 return lang_objs;
+                                 }
+                               ).then((lang_objs) => res.render('data_form',
+                               {
+                                 title: 'Create Data',
+                                 data_list: data,
+                                 message : "This item is already in the database.",
+                                 errors : errors.array(),
+                                 user: user,
+                                 lang: lang_objs
+                               }))
+                     .catch((e) => {
+                       throw e
+                     });
+                         })
+                     }
+                     else {
+                         data.save(function (err) {
+
+
+                             if (err) {
+
+                               //save data and display result
+                               Data.distinct('lang', {'user':req.user.user._id})
+                               .exec(function (err, lang) {
+                               if (err) { return next(err); }
+                                 const promises = []
+                                   for (let i = 0; i < lang.length; i++){
+                                     promises.push(Lang.findOne({"iso":lang[i]}, {lang:1, iso:1}))
+                                   }
+                                   Promise.all(promises)
+                                     .then((res) => {
+                                         const lang_objs = res;
+                                         return lang_objs;
+                                         }
+                                       ).then((lang_objs) => res.render('data_form',
+                                       {
+                                         title: 'Create Data',
+                                         data_list: data,
+                                         message : "Data could not be saved. Some part of your \
+                                                    data is not in the correct format.",
+                                         errors : errors.array(),
+                                         user: user,
+                                         lang: lang_objs
+                                       }))
+                             .catch((e) => {
+                               throw e
+                             });
+                                 })
+                           } else {
+                             //save data and display result
+                             Data.distinct('lang', {'user':req.user.user._id})
+                             .exec(function (err, lang) {
+                             if (err) { return next(err); }
+                               const promises = []
+                                 for (let i = 0; i < lang.length; i++){
+                                   promises.push(Lang.findOne({"iso":lang[i]}, {lang:1, iso:1}))
+                                 }
+                                 Promise.all(promises)
+                                   .then((res) => {
+                                       const lang_objs = res;
+                                       console.log("lang objs:",lang_objs)
+                                       return lang_objs;
+                                       }
+                                     ).then((lang_objs) => res.render('data_form',
+                                     {
+                                       title: 'Create Data',
+                                       data_list: data,
+                                       message : 'Saved!',
+                                       user: user,
+                                       lang: lang_objs
+                                     }))
+                           .catch((e) => {
+                             throw e
+                           });
+                               })
+                           }
+                         });
+                     }
+                 });
+          }
+        })
+        };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
       function writeToFile(filePath, arr)  {
         return new Promise((resolve, reject) => {
           const file = fs.createWriteStream(filePath);
@@ -236,84 +383,6 @@ exports.data_delete_post = function(req, res) {
      res.send('NOT IMPLEMENTED: Lexeme detail: ' + req.params.id);
 
  };
-
-
-//Add a new sentence and the morphemes that compose it
- exports.create_post = function(req,res) {
-
-   const user = ( req.cookies.jwt ?
-     jwt.verify(req.cookies.jwt, jwtKey).user.username : '' ); //user validation
-   const errors = validator.validationResult(req);
-   const cleanedMorph = morphCleaner(req.body.morph.split(',')); //strip trailing
-   //and leading punctuation
-   let data = new Data({ //create new Data object
-           text: req.body.text,
-           source: req.body.source,
-           ref: req.body.ref,
-           judgment: req.body.judgment,
-           context: req.body.context,
-           gloss: req.body.gloss.split(','),
-           morph: cleanedMorph,
-           trans: req.body.trans,
-           notes: req.body.notes,
-           tags: req.body.tags.split(' '),
-           user: req.user.user._id,
-           lang: req.body.lang,
-           });
-           console.log(data)
-
-    addLexemes(data.morph, data.gloss, data.user, data.lang) //add lexemes to db
-    .then((output) => data.morpheme_ids = output)//add lexeme ids to the Data object
-    .then(()=> {
-      if ( !errors.isEmpty() ) {
-          res.send({data_list: data, errors: errors.array()});
-       return;
-     }  else {
-       Data.findOne({ 'text': data.text, 'context': data.context, 'lang': data.lang, 'user':data.user})
-           .exec( function(err, found_text ) {
-               if (err) { return next(err); }
-
-               if (found_text) {//display result
-                  res.render('data_form', {title: 'Create Data',
-                  message : "This sentence is already in the database.",
-                  data_list: data, errors: errors.array(),
-                  user: user, 'lang': [data.lang]});
-               }
-               else {
-                   data.save(function (err) {//save data and display result
-                       if (err) {res.render(
-                         'data_form',
-                            {
-                              title: 'Create Data',
-                              message: "Data could not be saved. Some part of your \
-                              data is not in the correct format.",
-                              data_list: data,
-                              errors: errors.array(),
-                              user: user,
-                              'lang': [data.lang]
-                            }
-                       )
-                     } else {
-                          res.render(
-                            'data_form', {
-                              title: 'Create Data',
-                              message: "Saved!",
-                              data_list: data,
-                              errors: errors.array(),
-                              user: user,
-                              'lang': [data.lang]
-                            }
-                          );
-                     }
-                   });
-               }
-           });
-    }
-  })
-  };
-
-
-
 
 
 

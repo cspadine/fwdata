@@ -133,7 +133,7 @@ function autoPopulateGloss(array){
       glossCell.appendChild(glossSubTable);
       glossSubTable.appendChild(glossSubTableRow);
 
-      //Same thing for the suggestiions: the need to be inside a table
+      //Same thing for the suggestions: the need to be inside a table
       //in order to line up.
       const suggestionCell = document.createElement('td');
       suggestionCell.setAttribute('id',`suggestion_span_${i}_td`);
@@ -619,6 +619,11 @@ const findLangs = function(){
     if (i == 0){
       document.getElementById('lang').value = langs[i]['iso']
       document.getElementById('lang_name').value = langs[i]['lang']
+      const language_code = document.getElementById('lang')
+      language_code.style.backgroundColor = "white"
+      document.getElementById('lang_comments').innerHTML = ''
+      document.getElementById("data_submit").disabled = false;
+
     }
   }
 }
@@ -629,7 +634,10 @@ const findLangs = function(){
 const setLang = function(lang, name){
   document.getElementById('lang').value = lang;
   document.getElementById('lang_name').value = name;
-//  populateGloss();
+  const language_code = document.getElementById('lang')
+  language_code.style.backgroundColor = "white"
+  document.getElementById('lang_comments').innerHTML = ''
+  document.getElementById("data_submit").disabled = false;
 }
 
 
